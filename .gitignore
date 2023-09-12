@@ -79,3 +79,9 @@ docs/db/
 
 poetry.lock
 .aider*
+
+# gpt-engineer
+memory
+workspace
+file_list.txt
+prompt
