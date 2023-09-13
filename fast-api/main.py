@@ -1,6 +1,7 @@
 import asyncio
 import os
 import shutil
+import zipfile
 
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import openai
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import FileResponse, JSONResponse
 
 from gpt_engineer.ai import AI
 from gpt_engineer.db import DB, DBs
@@ -140,6 +141,34 @@ async def delete_app(app_name: str):
     if app_path.exists() and app_path.is_dir():
         shutil.rmtree(app_path)
         return {"message": f"App {app_name} has been successfully deleted."}
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"App {app_name} does not exist.",
+        )
+
+
+@app.get("/download/{app_name}")
+async def download_app(app_name: str):
+    # This function will allow the user to download the app with the given name
+    # It does this by creating a zip file of the app's directory and returning it as a response
+    app_path = BASE_PROJECT_PATH / app_name
+    if app_path.exists() and app_path.is_dir():
+        zip_file_path = BASE_PROJECT_PATH / f"{app_name}.zip"
+        with zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+            for root, dirs, files in os.walk(app_path):
+                for file in files:
+                    zipf.write(
+                        os.path.join(root, file),
+                        os.path.relpath(
+                            os.path.join(root, file), os.path.join(app_path, "..")
+                        ),
+                    )
+        return FileResponse(
+            path=str(zip_file_path),
+            filename=f"{app_name}.zip",
+            media_type="application/zip",
+        )
     else:
         raise HTTPException(
             status_code=404,
