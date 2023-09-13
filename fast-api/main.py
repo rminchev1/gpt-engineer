@@ -20,14 +20,15 @@ app = FastAPI()
 MODEL = "gpt-4"
 TEMPERATURE = 1.0
 AZURE_ENDPOINT = ""
-# BASE_PROJECT_PATH = "projects"
 BASE_PROJECT_PATH = Path(os.path.dirname(os.path.abspath(__file__))) / "projects"
 INPUT_PATH = BASE_PROJECT_PATH.absolute()
-# INPUT_PATH = Path(BASE_PROJECT_PATH).absolute()
 MEMORY_PATH = INPUT_PATH / "memory"
 WORKSPACE_PATH = INPUT_PATH / "workspace"
 ARCHIVE_PATH = INPUT_PATH / "archive"
 STEPS_CONFIG = StepsConfig.DEFAULT
+
+# Global dictionary to hold the status of each operation
+operation_status = {}
 
 
 # Load environment variables
@@ -65,7 +66,7 @@ def initialize(app_name):
 
 
 @app.get("/")
-def hello_world():
+async def hello_world():
     return {"message": "Hello, World!"}
 
 
@@ -90,14 +91,18 @@ async def use_engineer(request: Request):
         )
 
     # Create a task that will run in the background
-    asyncio.create_task(run_engineer(app_name, json_data["message"]))
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, run_engineer, app_name, json_data["message"])
+
+    # Update the status of the operation in the global dictionary
+    operation_status[app_name] = "In progress"
 
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}
     )
 
 
-async def run_engineer(app_name, message):
+def run_engineer(app_name, message):
     ai, dbs = initialize(app_name)
 
     dbs.input["prompt"] = message
@@ -108,10 +113,12 @@ async def run_engineer(app_name, message):
         messages = step(ai, dbs)
         dbs.logs[step.__name__] = AI.serialize_messages(messages)
 
+    # Update the status of the operation in the global dictionary
+    operation_status[app_name] = "Completed"
 
-@app.get("/progress")
-def report_progress():
+
+@app.get("/progress/{app_name}")
+async def report_progress(app_name: str):
     # This function will report the progress of the request
-    # For simplicity, let's assume we have a global variable that holds the progress
-    global progress
-    return {"progress": progress}
+    # It checks the global dictionary for the status of the operation
+    return {"progress": operation_status.get(app_name, "Not started")}
