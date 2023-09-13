@@ -65,7 +65,7 @@ def hello_world():
 
 
 @app.route("/generate", methods=["POST"])
-def use_engineer():
+async def use_engineer():
     json_data = request.get_json()
     app_name = json_data["appName"]
 
@@ -103,8 +103,18 @@ def use_engineer():
         messages = step(ai, dbs)
         dbs.logs[step.__name__] = AI.serialize_messages(messages)
 
-    return jsonify({"result": "hello"})
+    return jsonify(
+        {"result": "Your request has been acknowledged and is being processed."}
+    )
+
+
+@app.route("/progress", methods=["GET"])
+def report_progress():
+    # This function will report the progress of the request
+    # For simplicity, let's assume we have a global variable that holds the progress
+    global progress
+    return jsonify({"progress": progress})
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
