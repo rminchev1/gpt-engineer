@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from pathlib import Path
@@ -5,20 +6,24 @@ from pathlib import Path
 import openai
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from fastapi import FastAPI, HTTPException
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from gpt_engineer.ai import AI
 from gpt_engineer.db import DB, DBs
 from gpt_engineer.steps import STEPS, Config as StepsConfig
 
-app = Flask(__name__)
+app = FastAPI()
 
 # Constants
 MODEL = "gpt-4"
 TEMPERATURE = 1.0
 AZURE_ENDPOINT = ""
-BASE_PROJECT_PATH = "flask-api/projects"
-INPUT_PATH = Path(BASE_PROJECT_PATH).absolute()
+# BASE_PROJECT_PATH = "projects"
+BASE_PROJECT_PATH = Path(os.path.dirname(os.path.abspath(__file__))) / "projects"
+INPUT_PATH = BASE_PROJECT_PATH.absolute()
+# INPUT_PATH = Path(BASE_PROJECT_PATH).absolute()
 MEMORY_PATH = INPUT_PATH / "memory"
 WORKSPACE_PATH = INPUT_PATH / "workspace"
 ARCHIVE_PATH = INPUT_PATH / "archive"
@@ -59,43 +64,43 @@ def initialize(app_name):
     return ai, dbs
 
 
-@app.route("/app", methods=["GET"])
+@app.get("/")
 def hello_world():
-    return "Hello, World!"
+    return {"message": "Hello, World!"}
 
 
-@app.route("/generate", methods=["POST"])
-async def use_engineer():
-    json_data = request.get_json()
+@app.post("/generate")
+async def use_engineer(request: Request):
+    json_data = await request.json()
     app_name = json_data["appName"]
 
     # Check if appName is not empty and doesn't contain any white spaces
     if not app_name or " " in app_name:
-        return (
-            jsonify(
-                {
-                    "error": "Invalid appName."
-                    + "It should not be empty and should not contain any white spaces."
-                }
-            ),
-            400,
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid appName."
+            + "It should not be empty and should not contain any white spaces.",
         )
 
     # Check if a directory with the same name already exists
     if (INPUT_PATH / app_name).exists():
-        return (
-            jsonify(
-                {
-                    "error": "A project with the same name already exists."
-                    + "Please choose a different name."
-                }
-            ),
-            400,
+        raise HTTPException(
+            status_code=400,
+            detail="A project with the same name already exists.",
         )
 
+    # Create a task that will run in the background
+    asyncio.create_task(run_engineer(app_name, json_data["message"]))
+
+    return JSONResponse(
+        content={"result": "Your request has been acknowledged and is being processed."}
+    )
+
+
+async def run_engineer(app_name, message):
     ai, dbs = initialize(app_name)
 
-    dbs.input["prompt"] = json_data["message"]
+    dbs.input["prompt"] = message
 
     steps_config = StepsConfig.SIMPLE
     steps = STEPS[steps_config]
@@ -103,18 +108,10 @@ async def use_engineer():
         messages = step(ai, dbs)
         dbs.logs[step.__name__] = AI.serialize_messages(messages)
 
-    return jsonify(
-        {"result": "Your request has been acknowledged and is being processed."}
-    )
 
-
-@app.route("/progress", methods=["GET"])
+@app.get("/progress")
 def report_progress():
     # This function will report the progress of the request
     # For simplicity, let's assume we have a global variable that holds the progress
     global progress
-    return jsonify({"progress": progress})
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    return {"progress": progress}
