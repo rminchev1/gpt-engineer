@@ -1,5 +1,6 @@
 import asyncio
 import os
+import shutil
 
 from pathlib import Path
 
@@ -122,3 +123,25 @@ async def report_progress(app_name: str):
     # This function will report the progress of the request
     # It checks the global dictionary for the status of the operation
     return {"progress": operation_status.get(app_name, "Not started")}
+
+
+@app.get("/apps")
+async def list_apps():
+    # This function will list all the apps that have been created
+    # It does this by listing all the directories in the projects directory
+    return {"apps": [d.name for d in BASE_PROJECT_PATH.iterdir() if d.is_dir()]}
+
+
+@app.delete("/delete/{app_name}")
+async def delete_app(app_name: str):
+    # This function will delete the app with the given name
+    # It does this by deleting the directory associated with the app name
+    app_path = BASE_PROJECT_PATH / app_name
+    if app_path.exists() and app_path.is_dir():
+        shutil.rmtree(app_path)
+        return {"message": f"App {app_name} has been successfully deleted."}
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"App {app_name} does not exist.",
+        )
