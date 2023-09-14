@@ -31,6 +31,7 @@ STEPS_CONFIG = StepsConfig.DEFAULT
 
 # Global dictionary to hold the status of each operation
 operation_status = {}
+operation_progress = {}
 
 
 # Load environment variables
@@ -98,6 +99,7 @@ async def use_engineer(request: Request):
 
     # Update the status of the operation in the global dictionary
     operation_status[app_name] = "In progress"
+    operation_progress[app_name] = 0
 
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}
@@ -111,9 +113,13 @@ def run_engineer(app_name, message):
 
     steps_config = StepsConfig.SIMPLE
     steps = STEPS[steps_config]
-    for step in steps:
+    total_steps = len(steps)
+    for i, step in enumerate(steps):
         messages = step(ai, dbs)
         dbs.logs[step.__name__] = AI.serialize_messages(messages)
+
+        # Update the progress of the operation in the global dictionary
+        operation_progress[app_name] = (i + 1) / total_steps * 100
 
     # Update the status of the operation in the global dictionary
     operation_status[app_name] = "Completed"
@@ -123,7 +129,10 @@ def run_engineer(app_name, message):
 async def report_progress(app_name: str):
     # This function will report the progress of the request
     # It checks the global dictionary for the status of the operation
-    return {"progress": operation_status.get(app_name, "Not started")}
+    return {
+        "progress": operation_status.get(app_name, "Not started"),
+        "percentage": operation_progress.get(app_name, 0),
+    }
 
 
 @app.get("/apps")
