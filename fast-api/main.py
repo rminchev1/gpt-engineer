@@ -7,8 +7,10 @@ from pathlib import Path
 
 import openai
 
+from auth import authenticate_user, create_access_token, get_current_user
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse
 
@@ -28,10 +30,13 @@ MEMORY_PATH = INPUT_PATH / "memory"
 WORKSPACE_PATH = INPUT_PATH / "workspace"
 ARCHIVE_PATH = INPUT_PATH / "archive"
 STEPS_CONFIG = StepsConfig.DEFAULT
+TOKEN_PATH = BASE_PROJECT_PATH / "tokens.json"
 
 # Global dictionary to hold the status of each operation
 operation_status = {}
 operation_progress = {}
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # Load environment variables
@@ -74,7 +79,7 @@ async def hello_world():
 
 
 @app.post("/generate")
-async def use_engineer(request: Request):
+async def use_engineer(request: Request, current_user: str = Depends(get_current_user)):
     json_data = await request.json()
     app_name = json_data["appName"]
 
@@ -126,7 +131,7 @@ def run_engineer(app_name, message):
 
 
 @app.get("/progress/{app_name}")
-async def report_progress(app_name: str):
+async def report_progress(app_name: str, current_user: str = Depends(get_current_user)):
     # This function will report the progress of the request
     # It checks the global dictionary for the status of the operation
     return {
@@ -136,14 +141,14 @@ async def report_progress(app_name: str):
 
 
 @app.get("/apps")
-async def list_apps():
+async def list_apps(current_user: str = Depends(get_current_user)):
     # This function will list all the apps that have been created
     # It does this by listing all the directories in the projects directory
     return {"apps": [d.name for d in BASE_PROJECT_PATH.iterdir() if d.is_dir()]}
 
 
 @app.delete("/delete/{app_name}")
-async def delete_app(app_name: str):
+async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
     # This function will delete the app with the given name
     # It does this by deleting the directory associated with the app name
     app_path = BASE_PROJECT_PATH / app_name
@@ -158,7 +163,7 @@ async def delete_app(app_name: str):
 
 
 @app.get("/download/{app_name}")
-async def download_app(app_name: str):
+async def download_app(app_name: str, current_user: str = Depends(get_current_user)):
     # This function will allow the user to download the app with the given name
     # It does this by creating a zip file of the app's directory and returning it as a response
     app_path = BASE_PROJECT_PATH / app_name
@@ -183,3 +188,20 @@ async def download_app(app_name: str):
             status_code=404,
             detail=f"App {app_name} does not exist.",
         )
+
+
+@app.post("/token")
+async def login(request: Request):
+    json_data = await request.json()
+    username = json_data["username"]
+    password = json_data["password"]
+
+    user = authenticate_user(username, password)
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect username or password",
+        )
+
+    access_token = create_access_token(data={"sub": username})
+    return {"access_token": access_token, "token_type": "bearer"}
