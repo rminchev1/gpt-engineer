@@ -7,7 +7,7 @@ from pathlib import Path
 
 import openai
 
-from auth import authenticate_user, create_access_token, get_current_user
+from auth import authenticate_user, create_access_token, get_current_user, register_user
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -205,3 +205,19 @@ async def login(request: Request):
 
     access_token = create_access_token(data={"sub": username})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.post("/register")
+async def register(request: Request):
+    json_data = await request.json()
+    username = json_data["username"]
+    password = json_data["password"]
+
+    user = register_user(username, password)
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists",
+        )
+
+    return {"message": "User registered successfully"}

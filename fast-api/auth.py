@@ -67,3 +67,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         raise credentials_exception
     return user
+
+
+def register_user(username: str, password: str):
+    if TOKEN_PATH.exists():
+        with open(TOKEN_PATH, "r") as file:
+            users = json.load(file)
+            if username in users:
+                return False
+            else:
+                users[username] = get_password_hash(password)
+                with open(TOKEN_PATH, "w") as file:
+                    json.dump(users, file)
+                return True
+    else:
+        with open(TOKEN_PATH, "w") as file:
+            users = {username: get_password_hash(password)}
+            json.dump(users, file)
+        return True
