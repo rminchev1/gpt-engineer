@@ -3,6 +3,7 @@ from gpt_engineer.ai import AI
 from gpt_engineer.db import DB, DBs
 from constants import *
 
+
 def initialize(app_name, current_user):
     project_path = Path(BASE_PROJECT_PATH) / current_user / app_name
     memory_path = project_path / "memory"

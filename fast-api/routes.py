@@ -1,4 +1,4 @@
-import asyncore
+import asyncio
 from engineer import run_engineer
 from fastapi import APIRouter, Depends
 from gpt_engineer.steps import STEPS, Config as StepsConfig
@@ -6,11 +6,13 @@ from constants import *
 from starlette.requests import Request
 from app import *
 from auth import *
+
 router = APIRouter()
 
 
 operation_status = {}
 operation_progress = {}
+
 
 @router.get("/")
 async def hello_world():
@@ -38,9 +40,9 @@ async def use_engineer(request: Request, current_user: str = Depends(get_current
         )
 
     # Create a task that will run in the background
-    loop = asyncore.get_event_loop()
-    loop.run_in_executor(None, run_engineer, current_user, app_name, json_data["message"])
-
+    loop = asyncio.get_event_loop()
+    # loop.run_in_executor(None, run_engineer, current_user, app_name, json_data["message"])
+    run_engineer(app_name, json_data["message"], current_user)
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name] = "In progress"
     operation_progress[current_user + app_name] = 0
@@ -145,4 +147,3 @@ async def register(request: Request):
         )
 
     return {"message": "User registered successfully"}
-
