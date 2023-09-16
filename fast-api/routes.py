@@ -1,13 +1,16 @@
 import asyncore
 from engineer import run_engineer
 from fastapi import APIRouter, Depends
-import requests
-from gpt_engineer.steps import StepsConfig, Config
+from gpt_engineer.steps import STEPS, Config as StepsConfig
 from constants import *
+from starlette.requests import Request
 from app import *
 from auth import *
 router = APIRouter()
 
+
+operation_status = {}
+operation_progress = {}
 
 @router.get("/")
 async def hello_world():
@@ -15,7 +18,7 @@ async def hello_world():
 
 
 @router.post("/generate")
-async def use_engineer(request: requests, current_user: str = Depends(get_current_user)):
+async def use_engineer(request: Request, current_user: str = Depends(get_current_user)):
     json_data = await request.json()
     app_name = json_data["appName"]
 
@@ -142,3 +145,4 @@ async def register(request: Request):
         )
 
     return {"message": "User registered successfully"}
+
