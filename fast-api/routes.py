@@ -53,7 +53,11 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
 async def list_apps(current_user: str = Depends(get_current_user)):
     # This function will list all the apps that have been created
     # It does this by listing all the directories in the projects directory
-    return {"apps": [d.name for d in (BASE_PROJECT_PATH / current_user).iterdir() if d.is_dir()]}
+    user_path = BASE_PROJECT_PATH / current_user
+    if user_path.exists():
+        return {"apps": [d.name for d in user_path.iterdir() if d.is_dir()]}
+    else:
+        return {"apps": []}
 
 @router.delete("/delete/{app_name}")
 async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
@@ -126,3 +130,5 @@ async def register(request: Request):
         )
 
     return {"message": "User registered successfully"}
+
+
