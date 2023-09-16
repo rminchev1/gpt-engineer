@@ -28,17 +28,15 @@ operation_progress = {}
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-
 # Load environment variables
 def load_env_if_needed():
     if os.getenv("OPENAI_API_KEY") is None:
         load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
 # Initialize AI and DBs
-def initialize(app_name):
-    project_path = Path(BASE_PROJECT_PATH) / app_name
+def initialize(app_name, current_user):
+    project_path = Path(BASE_PROJECT_PATH) / current_user / app_name
     memory_path = project_path / "memory"
     workspace_path = project_path / "workspace"
     archive_path = project_path / "archive"
