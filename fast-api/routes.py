@@ -1,15 +1,21 @@
+import asyncore
+from engineer import run_engineer
 from fastapi import APIRouter, Depends
+import requests
+from gpt_engineer.steps import StepsConfig, Config
 from constants import *
 from app import *
-
+from auth import *
 router = APIRouter()
+
 
 @router.get("/")
 async def hello_world():
     return {"message": "Hello, World!"}
 
+
 @router.post("/generate")
-async def use_engineer(request: Request, current_user: str = Depends(get_current_user)):
+async def use_engineer(request: requests, current_user: str = Depends(get_current_user)):
     json_data = await request.json()
     app_name = json_data["appName"]
 
@@ -29,7 +35,7 @@ async def use_engineer(request: Request, current_user: str = Depends(get_current
         )
 
     # Create a task that will run in the background
-    loop = asyncio.get_event_loop()
+    loop = asyncore.get_event_loop()
     loop.run_in_executor(None, run_engineer, current_user, app_name, json_data["message"])
 
     # Update the status of the operation in the global dictionary
@@ -40,6 +46,7 @@ async def use_engineer(request: Request, current_user: str = Depends(get_current
         content={"result": "Your request has been acknowledged and is being processed."}
     )
 
+
 @router.get("/progress/{app_name}")
 async def report_progress(app_name: str, current_user: str = Depends(get_current_user)):
     # This function will report the progress of the request
@@ -48,6 +55,7 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
         "progress": operation_status.get(current_user + app_name, "Not started"),
         "percentage": operation_progress.get(current_user + app_name, 0),
     }
+
 
 @router.get("/apps")
 async def list_apps(current_user: str = Depends(get_current_user)):
@@ -58,6 +66,7 @@ async def list_apps(current_user: str = Depends(get_current_user)):
         return {"apps": [d.name for d in user_path.iterdir() if d.is_dir()]}
     else:
         return {"apps": []}
+
 
 @router.delete("/delete/{app_name}")
 async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
@@ -72,6 +81,7 @@ async def delete_app(app_name: str, current_user: str = Depends(get_current_user
             status_code=404,
             detail=f"App {app_name} does not exist.",
         )
+
 
 @router.get("/download/{app_name}")
 async def download_app(app_name: str, current_user: str = Depends(get_current_user)):
@@ -100,6 +110,7 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
             detail=f"App {app_name} does not exist.",
         )
 
+
 @router.post("/token")
 async def login(request: Request):
     json_data = await request.json()
@@ -116,6 +127,7 @@ async def login(request: Request):
     access_token = create_access_token(data={"sub": username})
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @router.post("/register")
 async def register(request: Request):
     json_data = await request.json()
@@ -130,5 +142,3 @@ async def register(request: Request):
         )
 
     return {"message": "User registered successfully"}
-
-
