@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from constants import *
-from main import *
+from app import *
 
 router = APIRouter()
 
@@ -133,3 +133,4 @@ async def register(request: Request):
         )
 
     return {"message": "User registered successfully"}
+
