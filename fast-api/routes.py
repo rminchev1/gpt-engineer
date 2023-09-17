@@ -9,7 +9,6 @@ from auth import *
 
 router = APIRouter()
 
-
 operation_status = {}
 operation_progress = {}
 
@@ -41,8 +40,7 @@ async def use_engineer(request: Request, current_user: str = Depends(get_current
 
     # Create a task that will run in the background
     loop = asyncio.get_event_loop()
-    # loop.run_in_executor(None, run_engineer, current_user, app_name, json_data["message"])
-    run_engineer(app_name, json_data["message"], current_user)
+    loop.run_in_executor(None, run_engineer, app_name, json_data["message"], current_user)
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name] = "In progress"
     operation_progress[current_user + app_name] = 0
