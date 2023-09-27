@@ -25,6 +25,7 @@ def initialize(app_name, current_user):
             Path(__file__).parent.parent / "gpt_engineer" / "preprompts"
         ),  # Loads preprompts from the preprompts directory
         archive=DB(archive_path),
+        project_metadata= project_path / ".gpteng"
     )
 
     return ai, dbs
