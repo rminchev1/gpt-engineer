@@ -7,6 +7,8 @@ import tkinter.filedialog as fd
 from pathlib import Path
 from typing import List, Union
 
+from gpt_engineer.db import DB, DBs
+
 IGNORE_FOLDERS = {"site-packages", "node_modules", "venv"}
 FILE_LIST_NAME = "file_list.txt"
 
@@ -231,7 +233,7 @@ def is_in_ignoring_extensions(path: Path) -> bool:
     return is_hidden and is_pycache
 
 
-def ask_for_files(db_input) -> None:
+def ask_for_files(metadata_db: DB, workspace_db: DB) -> None:
     """
     Ask user to select files to improve.
     It can be done by terminal, gui, or using the old selection.
@@ -239,11 +241,18 @@ def ask_for_files(db_input) -> None:
     Returns:
         dict[str, str]: Dictionary where key = file name and value = file path
     """
+    if FILE_LIST_NAME in metadata_db:
+        print(
+            f"File list detected at {metadata_db.path / FILE_LIST_NAME}. "
+            "Edit or delete it if you want to select new files."
+        )
+        return
+
     use_last_string = ""
-    if FILE_LIST_NAME in db_input:
+    if FILE_LIST_NAME in metadata_db:
         use_last_string = (
             "3. Use previous file list (available at "
-            + f"{os.path.join(db_input.path, FILE_LIST_NAME)})\n"
+            + f"{os.path.join(metadata_db.path, FILE_LIST_NAME)})\n"
         )
         selection_number = 3
     else:
@@ -270,10 +279,10 @@ def ask_for_files(db_input) -> None:
 
     if selection_number == 1:
         # Open GUI selection
-        file_path_list = gui_file_selector()
+        file_path_list = gui_file_selector(workspace_db.path)
     elif selection_number == 2:
         # Open terminal selection
-        file_path_list = terminal_file_selector()
+        file_path_list = terminal_file_selector(workspace_db.path)
     if (
         selection_number <= 0
         or selection_number > 3
@@ -283,10 +292,10 @@ def ask_for_files(db_input) -> None:
         sys.exit(1)
 
     if not selection_number == 3:
-        db_input[FILE_LIST_NAME] = "\n".join(file_path_list)
+        metadata_db[FILE_LIST_NAME] = "\n".join(file_path_list)
 
 
-def gui_file_selector() -> List[str]:
+def gui_file_selector(input_path: str) -> List[str]:
     """
     Display a tkinter file selection window to select context files.
     """
@@ -296,18 +305,18 @@ def gui_file_selector() -> List[str]:
     file_list = list(
         fd.askopenfilenames(
             parent=root,
-            initialdir=os.getcwd(),
+            initialdir=input_path,
             title="Select files to improve (or give context):",
         )
     )
     return file_list
 
 
-def terminal_file_selector() -> List[str]:
+def terminal_file_selector(input_path: str) -> List[str]:
     """
     Display a terminal file selection to select context files.
     """
-    file_selector = TerminalFileSelector(Path(os.getcwd()))
+    file_selector = TerminalFileSelector(Path(input_path))
     file_selector.display()
     selected_list = file_selector.ask_for_selection()
     return selected_list
