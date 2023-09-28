@@ -7,12 +7,30 @@ from starlette.requests import Request
 from app import *
 from auth import *
 import uuid
+from pydantic import BaseModel
 
 router = APIRouter()
 
 operation_status = {}
 operation_progress = {}
 
+class GeneratePayload(BaseModel):
+    appName: str
+    message: str
+
+class LoginPayload(BaseModel):
+    username: str
+    password: str
+
+class PromptPayload(BaseModel):
+    prompt: str
+
+class PromptIdPayload(BaseModel):
+    prompt_id: str
+
+class UpdatePromptPayload(BaseModel):
+    prompt_id: str
+    new_prompt: str
 
 @router.get("/")
 async def hello_world():
@@ -23,12 +41,11 @@ async def hello_world():
 
 
 @router.post("/generate")
-async def use_engineer(request: Request, current_user: str = Depends(get_current_user)):
+async def use_engineer(payload: GeneratePayload, current_user: str = Depends(get_current_user)):
     """
     Function to use the engineer.
     """
-    json_data = await request.json()
-    app_name = json_data["appName"]
+    app_name = payload.appName
 
     # Check if appName is not empty and doesn't contain any white spaces
     if not app_name or " " in app_name:
@@ -47,7 +64,7 @@ async def use_engineer(request: Request, current_user: str = Depends(get_current
 
     # Create a task that will run in the background
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, run_engineer, app_name, json_data["message"], current_user)
+    loop.run_in_executor(None, run_engineer, app_name, payload.message, current_user)
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name] = "In progress"
     operation_progress[current_user + app_name] = 0
@@ -134,13 +151,12 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
 
 
 @router.post("/token")
-async def login(request: Request):
+async def login(payload: LoginPayload):
     """
     Function to login a user.
     """
-    json_data = await request.json()
-    username = json_data["username"]
-    password = json_data["password"]
+    username = payload.username
+    password = payload.password
 
     user = authenticate_user(username, password)
     if not user:
@@ -154,13 +170,12 @@ async def login(request: Request):
 
 
 @router.post("/register")
-async def register(request: Request):
+async def register(payload: LoginPayload):
     """
     Function to register a user.
     """
-    json_data = await request.json()
-    username = json_data["username"]
-    password = json_data["password"]
+    username = payload.username
+    password = payload.password
 
     user = register_user(username, password)
     if not user:
@@ -174,13 +189,12 @@ async def register(request: Request):
 
 @router.post("/add_prompt/{app_name}")
 async def add_prompt(
-    app_name: str, request: Request, current_user: str = Depends(get_current_user)
+    app_name: str, payload: PromptPayload, current_user: str = Depends(get_current_user)
 ):
     """
     Function to add a new prompt to the project.
     """
-    json_data = await request.json()
-    prompt = json_data["prompt"]
+    prompt = payload.prompt
 
     # Check if the project exists
     project_path = BASE_PROJECT_PATH / current_user / app_name
@@ -209,13 +223,12 @@ async def add_prompt(
 
 @router.delete("/delete_prompt/{app_name}")
 async def delete_prompt(
-    app_name: str, request: Request, current_user: str = Depends(get_current_user)
+    app_name: str, payload: PromptIdPayload, current_user: str = Depends(get_current_user)
 ):
     """
     Function to delete a prompt from the project.
     """
-    json_data = await request.json()
-    prompt_id = json_data["prompt_id"]
+    prompt_id = payload.prompt_id
 
     # Check if the project exists
     project_path = BASE_PROJECT_PATH / current_user / app_name
@@ -244,14 +257,13 @@ async def delete_prompt(
 
 @router.put("/update_prompt/{app_name}")
 async def update_prompt(
-    app_name: str, request: Request, current_user: str = Depends(get_current_user)
+    app_name: str, payload: UpdatePromptPayload, current_user: str = Depends(get_current_user)
 ):
     """
     Function to update a prompt in the project.
     """
-    json_data = await request.json()
-    prompt_id = json_data["prompt_id"]
-    new_prompt = json_data["new_prompt"]
+    prompt_id = payload.prompt_id
+    new_prompt = payload.new_prompt
 
     # Check if the project exists
     project_path = BASE_PROJECT_PATH / current_user / app_name
@@ -303,4 +315,5 @@ async def list_prompts(app_name: str, current_user: str = Depends(get_current_us
         prompts = {}
 
     return {"prompts": prompts}
+
 
