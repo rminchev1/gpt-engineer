@@ -147,8 +147,11 @@ async def register(request: Request):
 
     return {"message": "User registered successfully"}
 
+
 @router.post("/add_prompt/{app_name}")
-async def add_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
+async def add_prompt(
+    app_name: str, request: Request, current_user: str = Depends(get_current_user)
+):
     # This function will add a new prompt to the project
     json_data = await request.json()
     prompt = json_data["prompt"]
@@ -177,8 +180,11 @@ async def add_prompt(app_name: str, request: Request, current_user: str = Depend
 
     return {"message": f"Prompt added to project {app_name}."}
 
+
 @router.delete("/delete_prompt/{app_name}")
-async def delete_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
+async def delete_prompt(
+    app_name: str, request: Request, current_user: str = Depends(get_current_user)
+):
     # This function will delete a prompt from the project
     json_data = await request.json()
     prompt_id = json_data["prompt_id"]
@@ -207,8 +213,11 @@ async def delete_prompt(app_name: str, request: Request, current_user: str = Dep
             detail=f"Prompt does not exist.",
         )
 
+
 @router.put("/update_prompt/{app_name}")
-async def update_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
+async def update_prompt(
+    app_name: str, request: Request, current_user: str = Depends(get_current_user)
+):
     # This function will update a prompt in the project
     json_data = await request.json()
     prompt_id = json_data["prompt_id"]
@@ -237,6 +246,7 @@ async def update_prompt(app_name: str, request: Request, current_user: str = Dep
             status_code=404,
             detail=f"Prompt does not exist.",
         )
+
 
 @router.get("/prompts/{app_name}")
 async def list_prompts(app_name: str, current_user: str = Depends(get_current_user)):
