@@ -6,6 +6,7 @@ from constants import *
 from starlette.requests import Request
 from app import *
 from auth import *
+import uuid
 
 router = APIRouter()
 
@@ -161,9 +162,18 @@ async def add_prompt(app_name: str, request: Request, current_user: str = Depend
         )
 
     # Add the prompt to the project's prompts file
-    prompts_path = project_path / "prompts.txt"
-    with open(prompts_path, "a") as file:
-        file.write(prompt + "\n")
+    prompts_path = project_path / "prompts.json"
+    if prompts_path.exists():
+        with open(prompts_path, "r") as file:
+            prompts = json.load(file)
+    else:
+        prompts = {}
+
+    prompt_id = str(uuid.uuid4())
+    prompts[prompt_id] = prompt
+
+    with open(prompts_path, "w") as file:
+        json.dump(prompts, file)
 
     return {"message": f"Prompt added to project {app_name}."}
 
@@ -171,7 +181,7 @@ async def add_prompt(app_name: str, request: Request, current_user: str = Depend
 async def delete_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
     # This function will delete a prompt from the project
     json_data = await request.json()
-    prompt = json_data["prompt"]
+    prompt_id = json_data["prompt_id"]
 
     # Check if the project exists
     project_path = BASE_PROJECT_PATH / current_user / app_name
@@ -182,21 +192,26 @@ async def delete_prompt(app_name: str, request: Request, current_user: str = Dep
         )
 
     # Delete the prompt from the project's prompts file
-    prompts_path = project_path / "prompts.txt"
+    prompts_path = project_path / "prompts.json"
     with open(prompts_path, "r") as file:
-        lines = file.readlines()
-    with open(prompts_path, "w") as file:
-        for line in lines:
-            if line.strip("\n") != prompt:
-                file.write(line)
+        prompts = json.load(file)
 
-    return {"message": f"Prompt deleted from project {app_name}."}
+    if prompt_id in prompts:
+        del prompts[prompt_id]
+        with open(prompts_path, "w") as file:
+            json.dump(prompts, file)
+        return {"message": f"Prompt deleted from project {app_name}."}
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Prompt does not exist.",
+        )
 
 @router.put("/update_prompt/{app_name}")
 async def update_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
     # This function will update a prompt in the project
     json_data = await request.json()
-    old_prompt = json_data["old_prompt"]
+    prompt_id = json_data["prompt_id"]
     new_prompt = json_data["new_prompt"]
 
     # Check if the project exists
@@ -208,14 +223,40 @@ async def update_prompt(app_name: str, request: Request, current_user: str = Dep
         )
 
     # Update the prompt in the project's prompts file
-    prompts_path = project_path / "prompts.txt"
+    prompts_path = project_path / "prompts.json"
     with open(prompts_path, "r") as file:
-        lines = file.readlines()
-    with open(prompts_path, "w") as file:
-        for line in lines:
-            if line.strip("\n") == old_prompt:
-                file.write(new_prompt + "\n")
-            else:
-                file.write(line)
+        prompts = json.load(file)
 
-    return {"message": f"Prompt updated in project {app_name}."}
+    if prompt_id in prompts:
+        prompts[prompt_id] = new_prompt
+        with open(prompts_path, "w") as file:
+            json.dump(prompts, file)
+        return {"message": f"Prompt updated in project {app_name}."}
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Prompt does not exist.",
+        )
+
+@router.get("/prompts/{app_name}")
+async def list_prompts(app_name: str, current_user: str = Depends(get_current_user)):
+    # This function will list all the prompts in the project
+    # It does this by reading the prompts file in the project directory
+
+    # Check if the project exists
+    project_path = BASE_PROJECT_PATH / current_user / app_name
+    if not project_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project {app_name} does not exist.",
+        )
+
+    # Read the prompts from the project's prompts file
+    prompts_path = project_path / "prompts.json"
+    if prompts_path.exists():
+        with open(prompts_path, "r") as file:
+            prompts = json.load(file)
+    else:
+        prompts = {}
+
+    return {"prompts": prompts}
