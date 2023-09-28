@@ -64,6 +64,7 @@ async def use_engineer(
     # Save the message as a prompt for the current app and user
     project_path = BASE_PROJECT_PATH / current_user / app_name
     prompts_path = project_path / "prompts.json"
+    os.makedirs(project_path, exist_ok=True)
     if prompts_path.exists():
         with open(prompts_path, "r") as file:
             prompts = json.load(file)
@@ -155,4 +156,5 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
             status_code=404,
             detail=f"App {app_name} does not exist.",
         )
+
 
