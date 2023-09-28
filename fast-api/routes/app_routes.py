@@ -7,6 +7,8 @@ import asyncio
 import shutil
 import zipfile
 import os
+import json
+import uuid
 from starlette.responses import FileResponse, JSONResponse
 
 router = APIRouter()
@@ -58,6 +60,21 @@ async def use_engineer(
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name] = "In progress"
     operation_progress[current_user + app_name] = 0
+
+    # Save the message as a prompt for the current app and user
+    project_path = BASE_PROJECT_PATH / current_user / app_name
+    prompts_path = project_path / "prompts.json"
+    if prompts_path.exists():
+        with open(prompts_path, "r") as file:
+            prompts = json.load(file)
+    else:
+        prompts = {}
+
+    prompt_id = str(uuid.uuid4())
+    prompts[prompt_id] = payload.message
+
+    with open(prompts_path, "w") as file:
+        json.dump(prompts, file)
 
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}
@@ -138,3 +155,4 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
             status_code=404,
             detail=f"App {app_name} does not exist.",
         )
+
