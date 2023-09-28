@@ -1,8 +1,11 @@
+import sys
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from auth import get_current_user
 from engineer import run_engineer
 from constants import *
+
 import asyncio
 import shutil
 import zipfile
@@ -10,6 +13,8 @@ import os
 import json
 import uuid
 from starlette.responses import FileResponse, JSONResponse
+
+from gpt_engineer.steps import STEPS, Config as StepsConfig
 
 router = APIRouter()
 
@@ -27,6 +32,7 @@ async def hello_world():
     """
     Function to return a hello world message.
     """
+    st = STEPS
     return {"message": "Hello, World!"}
 
 
@@ -53,10 +59,10 @@ async def use_engineer(
             status_code=400,
             detail="A project with the same name already exists.",
         )
-
+    
     # Create a task that will run in the background
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, run_engineer, app_name, payload.message, current_user)
+    loop.run_in_executor(None, run_engineer, app_name, payload.message, current_user, StepsConfig.SIMPLE)
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name] = "In progress"
     operation_progress[current_user + app_name] = 0
@@ -157,4 +163,43 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
             detail=f"App {app_name} does not exist.",
         )
 
+
+@router.post("/run_prompt/{app_name}/{prompt_id}")
+async def run_prompt(app_name: str, prompt_id: str, current_user: str = Depends(get_current_user)):
+    """
+    Function to run a specific prompt in the project.
+    """
+    # Check if the project exists
+    project_path = BASE_PROJECT_PATH / current_user / app_name
+    if not project_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project {app_name} does not exist.",
+        )
+
+    # Read the prompts from the project's prompts file
+    prompts_path = project_path / "prompts.json"
+    if prompts_path.exists():
+        with open(prompts_path, "r") as file:
+            prompts = json.load(file)
+    else:
+        prompts = {}
+
+    # Check if the prompt exists
+    if prompt_id not in prompts:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Prompt does not exist.",
+        )
+
+    # Run the prompt
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, run_engineer, app_name, prompts[prompt_id], current_user, StepsConfig.IMPROVE_CODE)
+    # Update the status of the operation in the global dictionary
+    operation_status[current_user + app_name + prompt_id] = "In progress"
+    operation_progress[current_user + app_name + prompt_id] = 0
+
+    return JSONResponse(
+        content={"result": "Your request has been acknowledged and is being processed."}
+    )
 
