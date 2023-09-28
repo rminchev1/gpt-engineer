@@ -14,23 +14,29 @@ router = APIRouter()
 operation_status = {}
 operation_progress = {}
 
+
 class GeneratePayload(BaseModel):
     appName: str
     message: str
+
 
 class LoginPayload(BaseModel):
     username: str
     password: str
 
+
 class PromptPayload(BaseModel):
     prompt: str
+
 
 class PromptIdPayload(BaseModel):
     prompt_id: str
 
+
 class UpdatePromptPayload(BaseModel):
     prompt_id: str
     new_prompt: str
+
 
 @router.get("/")
 async def hello_world():
@@ -41,7 +47,9 @@ async def hello_world():
 
 
 @router.post("/generate")
-async def use_engineer(payload: GeneratePayload, current_user: str = Depends(get_current_user)):
+async def use_engineer(
+    payload: GeneratePayload, current_user: str = Depends(get_current_user)
+):
     """
     Function to use the engineer.
     """
@@ -257,7 +265,9 @@ async def delete_prompt(
 
 @router.put("/update_prompt/{app_name}")
 async def update_prompt(
-    app_name: str, payload: UpdatePromptPayload, current_user: str = Depends(get_current_user)
+    app_name: str,
+    payload: UpdatePromptPayload,
+    current_user: str = Depends(get_current_user),
 ):
     """
     Function to update a prompt in the project.

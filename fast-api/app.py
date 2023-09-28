@@ -48,18 +48,16 @@ for r in app.routes:
 
 # Generate OpenAPI schema and configure Swagger UI to require Bearer token authentication
 app.openapi_schema = app.openapi()
-app.openapi_schema['components']['securitySchemes'] = {
-    'bearerAuth': {
-        'type': 'http',
-        'scheme': 'bearer',
-        'bearerFormat': 'JWT'
-    }
+app.openapi_schema["components"]["securitySchemes"] = {
+    "bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
 }
-app.openapi_schema['security'] = [{'bearerAuth': []}]
+app.openapi_schema["security"] = [{"bearerAuth": []}]
+
 
 @app.get("/openapi.json")
 async def get_openapi_json():
     return JSONResponse(app.openapi())
+
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):

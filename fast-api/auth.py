@@ -111,4 +111,3 @@ def register_user(username: str, password: str):
             users = {username: get_password_hash(password)}
             json.dump(users, file)
         return True
-

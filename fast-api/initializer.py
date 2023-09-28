@@ -32,4 +32,3 @@ def initialize(app_name, current_user):
     )
 
     return ai, dbs
-
