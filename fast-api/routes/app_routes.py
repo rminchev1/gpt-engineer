@@ -14,7 +14,7 @@ import json
 import uuid
 from starlette.responses import FileResponse, JSONResponse
 
-from gpt_engineer.steps import STEPS, Config as StepsConfig
+from gpt_engineer.steps import STEPS, Config as StepsConfig, set_improve_filelist, get_improve_prompt, improve_existing_code
 
 router = APIRouter()
 
