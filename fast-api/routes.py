@@ -16,11 +16,17 @@ operation_progress = {}
 
 @router.get("/")
 async def hello_world():
+    """
+    Function to return a hello world message.
+    """
     return {"message": "Hello, World!"}
 
 
 @router.post("/generate")
 async def use_engineer(request: Request, current_user: str = Depends(get_current_user)):
+    """
+    Function to use the engineer.
+    """
     json_data = await request.json()
     app_name = json_data["appName"]
 
@@ -53,6 +59,9 @@ async def use_engineer(request: Request, current_user: str = Depends(get_current
 
 @router.get("/progress/{app_name}")
 async def report_progress(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    Function to report the progress of the request.
+    """
     # This function will report the progress of the request
     # It checks the global dictionary for the status of the operation
     return {
@@ -63,6 +72,9 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
 
 @router.get("/apps")
 async def list_apps(current_user: str = Depends(get_current_user)):
+    """
+    Function to list all the apps that have been created.
+    """
     # This function will list all the apps that have been created
     # It does this by listing all the directories in the projects directory
     user_path = BASE_PROJECT_PATH / current_user
@@ -74,6 +86,9 @@ async def list_apps(current_user: str = Depends(get_current_user)):
 
 @router.delete("/delete/{app_name}")
 async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    Function to delete an app.
+    """
     # This function will delete the app with the given name
     # It does this by deleting the directory associated with the app name
     app_path = BASE_PROJECT_PATH / current_user / app_name
@@ -89,6 +104,9 @@ async def delete_app(app_name: str, current_user: str = Depends(get_current_user
 
 @router.get("/download/{app_name}")
 async def download_app(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    Function to download an app.
+    """
     # This function will allow the user to download the app with the given name
     # It does this by creating a zip file of the app's directory and returning it as a response
     app_path = BASE_PROJECT_PATH / current_user / app_name
@@ -117,6 +135,9 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
 
 @router.post("/token")
 async def login(request: Request):
+    """
+    Function to login a user.
+    """
     json_data = await request.json()
     username = json_data["username"]
     password = json_data["password"]
@@ -134,6 +155,9 @@ async def login(request: Request):
 
 @router.post("/register")
 async def register(request: Request):
+    """
+    Function to register a user.
+    """
     json_data = await request.json()
     username = json_data["username"]
     password = json_data["password"]
@@ -152,7 +176,9 @@ async def register(request: Request):
 async def add_prompt(
     app_name: str, request: Request, current_user: str = Depends(get_current_user)
 ):
-    # This function will add a new prompt to the project
+    """
+    Function to add a new prompt to the project.
+    """
     json_data = await request.json()
     prompt = json_data["prompt"]
 
@@ -185,7 +211,9 @@ async def add_prompt(
 async def delete_prompt(
     app_name: str, request: Request, current_user: str = Depends(get_current_user)
 ):
-    # This function will delete a prompt from the project
+    """
+    Function to delete a prompt from the project.
+    """
     json_data = await request.json()
     prompt_id = json_data["prompt_id"]
 
@@ -218,7 +246,9 @@ async def delete_prompt(
 async def update_prompt(
     app_name: str, request: Request, current_user: str = Depends(get_current_user)
 ):
-    # This function will update a prompt in the project
+    """
+    Function to update a prompt in the project.
+    """
     json_data = await request.json()
     prompt_id = json_data["prompt_id"]
     new_prompt = json_data["new_prompt"]
@@ -250,6 +280,9 @@ async def update_prompt(
 
 @router.get("/prompts/{app_name}")
 async def list_prompts(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    Function to list all the prompts in the project.
+    """
     # This function will list all the prompts in the project
     # It does this by reading the prompts file in the project directory
 
@@ -270,3 +303,4 @@ async def list_prompts(app_name: str, current_user: str = Depends(get_current_us
         prompts = {}
 
     return {"prompts": prompts}
+

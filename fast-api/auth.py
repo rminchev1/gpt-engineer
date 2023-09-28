@@ -23,14 +23,23 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_password_hash(password):
+    """
+    Function to get the hashed version of a password.
+    """
     return pwd_context.hash(password)
 
 
 def verify_password(plain_password, hashed_password):
+    """
+    Function to verify a password against a hashed password.
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def authenticate_user(username: str, password: str):
+    """
+    Function to authenticate a user.
+    """
     if TOKEN_PATH.exists():
         with open(TOKEN_PATH, "r") as file:
             users = json.load(file)
@@ -44,6 +53,9 @@ def authenticate_user(username: str, password: str):
 
 
 def create_access_token(*, data: dict, expires_delta: timedelta = None):
+    """
+    Function to create an access token.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -55,6 +67,9 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """
+    Function to get the current user.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -78,6 +93,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 def register_user(username: str, password: str):
+    """
+    Function to register a user.
+    """
     if TOKEN_PATH.exists():
         with open(TOKEN_PATH, "r") as file:
             users = json.load(file)
@@ -93,3 +111,4 @@ def register_user(username: str, password: str):
             users = {username: get_password_hash(password)}
             json.dump(users, file)
         return True
+

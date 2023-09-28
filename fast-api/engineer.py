@@ -6,6 +6,9 @@ operation_status = {}
 
 
 def run_engineer(app_name, message, current_user):
+    """
+    Function to run the engineer.
+    """
     ai, dbs = initialize(app_name, current_user)
 
     dbs.input["prompt"] = message
@@ -22,3 +25,4 @@ def run_engineer(app_name, message, current_user):
 
     # Update the status of the operation in the global dictionary
     operation_status[app_name] = "Completed"
+

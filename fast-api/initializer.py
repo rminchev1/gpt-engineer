@@ -5,6 +5,9 @@ from constants import *
 
 
 def initialize(app_name, current_user):
+    """
+    Function to initialize the AI and databases.
+    """
     project_path = Path(BASE_PROJECT_PATH) / current_user / app_name
     memory_path = project_path / "memory"
     workspace_path = project_path / "workspace"
@@ -29,3 +32,4 @@ def initialize(app_name, current_user):
     )
 
     return ai, dbs
+
