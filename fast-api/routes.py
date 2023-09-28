@@ -145,3 +145,77 @@ async def register(request: Request):
         )
 
     return {"message": "User registered successfully"}
+
+@router.post("/add_prompt/{app_name}")
+async def add_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
+    # This function will add a new prompt to the project
+    json_data = await request.json()
+    prompt = json_data["prompt"]
+
+    # Check if the project exists
+    project_path = BASE_PROJECT_PATH / current_user / app_name
+    if not project_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project {app_name} does not exist.",
+        )
+
+    # Add the prompt to the project's prompts file
+    prompts_path = project_path / "prompts.txt"
+    with open(prompts_path, "a") as file:
+        file.write(prompt + "\n")
+
+    return {"message": f"Prompt added to project {app_name}."}
+
+@router.delete("/delete_prompt/{app_name}")
+async def delete_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
+    # This function will delete a prompt from the project
+    json_data = await request.json()
+    prompt = json_data["prompt"]
+
+    # Check if the project exists
+    project_path = BASE_PROJECT_PATH / current_user / app_name
+    if not project_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project {app_name} does not exist.",
+        )
+
+    # Delete the prompt from the project's prompts file
+    prompts_path = project_path / "prompts.txt"
+    with open(prompts_path, "r") as file:
+        lines = file.readlines()
+    with open(prompts_path, "w") as file:
+        for line in lines:
+            if line.strip("\n") != prompt:
+                file.write(line)
+
+    return {"message": f"Prompt deleted from project {app_name}."}
+
+@router.put("/update_prompt/{app_name}")
+async def update_prompt(app_name: str, request: Request, current_user: str = Depends(get_current_user)):
+    # This function will update a prompt in the project
+    json_data = await request.json()
+    old_prompt = json_data["old_prompt"]
+    new_prompt = json_data["new_prompt"]
+
+    # Check if the project exists
+    project_path = BASE_PROJECT_PATH / current_user / app_name
+    if not project_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project {app_name} does not exist.",
+        )
+
+    # Update the prompt in the project's prompts file
+    prompts_path = project_path / "prompts.txt"
+    with open(prompts_path, "r") as file:
+        lines = file.readlines()
+    with open(prompts_path, "w") as file:
+        for line in lines:
+            if line.strip("\n") == old_prompt:
+                file.write(new_prompt + "\n")
+            else:
+                file.write(line)
+
+    return {"message": f"Prompt updated in project {app_name}."}
