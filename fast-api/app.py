@@ -21,7 +21,7 @@ from gpt_engineer.steps import STEPS, Config as StepsConfig
 from constants import *
 from initializer import initialize
 
-app = FastAPI()
+app = FastAPI(title="appsforge.io")
 
 # Global dictionary to hold the status of each operation
 operation_status = {}
@@ -45,4 +45,5 @@ app.include_router(router)
 # Now you can access the routes through the FastAPI application instance
 for r in app.routes:
     print(r)
+
 
