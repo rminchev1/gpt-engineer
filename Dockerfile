@@ -11,7 +11,7 @@ COPY . /app
 RUN apt-get update \
  && apt-get install -y sudo tk tcl
 
-#RUN apt-get install python3-tk 
+#RUN apt-get install python3-tk
 
 RUN python -m pip install -e .
 
