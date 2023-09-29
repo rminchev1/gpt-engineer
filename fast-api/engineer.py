@@ -22,7 +22,6 @@ def run_engineer(app_name, message, current_user, steps_config):
 
     dbs.input["prompt"] = message
 
-    # steps_config = StepsConfig.IMPROVE_CODE
     steps = STEPS[steps_config]
     total_steps = len(steps)
     for i, step in enumerate(steps):
@@ -70,3 +69,4 @@ def set_improved_file_list(dbs):
             for file in files:
                 file_path = os.path.join(dbs.workspace.path, file)
                 file_obj.write(f"{file_path}\n")
+
