@@ -27,6 +27,18 @@ async def add_prompt(
 ):
     """
     Function to add a new prompt to the project.
+    This function takes in the app name and a payload containing the prompt.
+    It then checks if the project exists.
+    If it does, it adds the prompt to the project's prompts file and returns a success message.
+    If the project does not exist, it raises an HTTPException with a status code of 404.
+
+    Parameters:
+    app_name (str): The name of the app.
+    payload (PromptPayload): The payload containing the prompt.
+    current_user (str): The current user.
+
+    Returns:
+    dict: A dictionary containing a success message.
     """
     prompt = payload.prompt
 
@@ -61,6 +73,18 @@ async def delete_prompt(
 ):
     """
     Function to delete a prompt from the project.
+    This function takes in the app name and a payload containing the prompt id.
+    It then checks if the project exists.
+    If it does, it deletes the prompt from the project's prompts file and returns a success message.
+    If the project does not exist or the prompt does not exist, it raises an HTTPException with a status code of 404.
+
+    Parameters:
+    app_name (str): The name of the app.
+    payload (PromptIdPayload): The payload containing the prompt id.
+    current_user (str): The current user.
+
+    Returns:
+    dict: A dictionary containing a success message.
     """
     prompt_id = payload.prompt_id
 
@@ -97,6 +121,18 @@ async def update_prompt(
 ):
     """
     Function to update a prompt in the project.
+    This function takes in the app name and a payload containing the prompt id and the new prompt.
+    It then checks if the project exists.
+    If it does, it updates the prompt in the project's prompts file and returns a success message.
+    If the project does not exist or the prompt does not exist, it raises an HTTPException with a status code of 404.
+
+    Parameters:
+    app_name (str): The name of the app.
+    payload (UpdatePromptPayload): The payload containing the prompt id and the new prompt.
+    current_user (str): The current user.
+
+    Returns:
+    dict: A dictionary containing a success message.
     """
     prompt_id = payload.prompt_id
     new_prompt = payload.new_prompt
@@ -130,6 +166,17 @@ async def update_prompt(
 async def list_prompts(app_name: str, current_user: str = Depends(get_current_user)):
     """
     Function to list all the prompts in the project.
+    This function takes in the app name.
+    It then checks if the project exists.
+    If it does, it reads the prompts from the project's prompts file and returns them.
+    If the project does not exist, it raises an HTTPException with a status code of 404.
+
+    Parameters:
+    app_name (str): The name of the app.
+    current_user (str): The current user.
+
+    Returns:
+    dict: A dictionary containing all the prompts in the project.
     """
     # This function will list all the prompts in the project
     # It does this by reading the prompts file in the project directory
@@ -151,3 +198,4 @@ async def list_prompts(app_name: str, current_user: str = Depends(get_current_us
         prompts = {}
 
     return {"prompts": prompts}
+

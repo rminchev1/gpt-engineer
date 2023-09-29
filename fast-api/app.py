@@ -21,7 +21,7 @@ from gpt_engineer.steps import STEPS, Config as StepsConfig
 from constants import *
 from initializer import initialize
 
-app = FastAPI(title="appsforge.io")
+app = FastAPI(title="appsforge.io", docs_url=None, redoc_url="/docs")
 
 # Global dictionary to hold the status of each operation
 operation_status = {}
@@ -65,3 +65,4 @@ async def add_process_time_header(request: Request, call_next):
     if "Authorization" in request.headers:
         response.headers["Authorization"] = request.headers["Authorization"]
     return response
+

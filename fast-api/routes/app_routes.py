@@ -36,7 +36,8 @@ class GeneratePayload(BaseModel):
 @router.get("/")
 async def hello_world():
     """
-    Function to return a hello world message.
+    Test route to check if the server is running.
+    Returns a simple hello world message.
     """
     st = STEPS
     return {"message": "Hello, World!"}
@@ -47,7 +48,13 @@ async def use_engineer(
     payload: GeneratePayload, current_user: str = Depends(get_current_user)
 ):
     """
-    Function to use the engineer.
+    Route to generate a new project.
+    Takes in a payload containing the appName and the message (prompt) to be used for the project.
+    The current user is determined using the Depends function from FastAPI.
+    The function then checks if the appName is valid and if a project with the same name already exists.
+    If everything is valid, it creates a new task to run the engineer in the background.
+    The status of the operation is then updated in the global dictionary.
+    The function then saves the message as a prompt for the current app and user.
     """
     app_name = payload.appName
 
@@ -99,7 +106,9 @@ async def use_engineer(
 @router.get("/progress/{app_name}")
 async def report_progress(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    Function to report the progress of the request.
+    Route to report the progress of the request.
+    Takes in the appName as a path parameter and the current user is determined using the Depends function from FastAPI.
+    The function then checks the global dictionary for the status of the operation and returns it.
     """
     # This function will report the progress of the request
     # It checks the global dictionary for the status of the operation
@@ -112,7 +121,9 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
 @router.get("/apps")
 async def list_apps(current_user: str = Depends(get_current_user)):
     """
-    Function to list all the apps that have been created.
+    Route to list all the apps that have been created.
+    The current user is determined using the Depends function from FastAPI.
+    The function then lists all the directories in the projects directory and returns them.
     """
     # This function will list all the apps that have been created
     # It does this by listing all the directories in the projects directory
@@ -126,7 +137,10 @@ async def list_apps(current_user: str = Depends(get_current_user)):
 @router.delete("/delete/{app_name}")
 async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    Function to delete an app.
+    Route to delete an app.
+    Takes in the appName as a path parameter and the current user is determined using the Depends function from FastAPI.
+    The function then checks if the app with the given name exists.
+    If it does, it deletes the directory associated with the app name.
     """
     # This function will delete the app with the given name
     # It does this by deleting the directory associated with the app name
@@ -144,7 +158,10 @@ async def delete_app(app_name: str, current_user: str = Depends(get_current_user
 @router.get("/download/{app_name}")
 async def download_app(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    Function to download an app.
+    Route to download an app.
+    Takes in the appName as a path parameter and the current user is determined using the Depends function from FastAPI.
+    The function then checks if the app with the given name exists.
+    If it does, it creates a zip file of the app's directory and returns it as a response.
     """
     # This function will allow the user to download the app with the given name
     # It does this by creating a zip file of the app's directory and returning it as a response
@@ -177,7 +194,11 @@ async def run_prompt(
     app_name: str, prompt_id: str, current_user: str = Depends(get_current_user)
 ):
     """
-    Function to run a specific prompt in the project.
+    Route to run a specific prompt in the project.
+    Takes in the appName and the promptId as path parameters and the current user is determined using the Depends function from FastAPI.
+    The function then checks if the project exists.
+    If it does, it reads the prompts from the project's prompts file.
+    If the prompt exists, it runs the prompt and updates the status of the operation in the global dictionary.
     """
     # Check if the project exists
     project_path = BASE_PROJECT_PATH / current_user / app_name
@@ -219,3 +240,4 @@ async def run_prompt(
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}
     )
+
