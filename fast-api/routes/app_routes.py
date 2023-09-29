@@ -3,7 +3,7 @@ import sys
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from auth import get_current_user
-from engineer import run_engineer
+from engineer import run_engineer, run_engineer_improve
 from constants import *
 
 import asyncio
@@ -14,7 +14,13 @@ import json
 import uuid
 from starlette.responses import FileResponse, JSONResponse
 
-from gpt_engineer.steps import STEPS, Config as StepsConfig, set_improve_filelist, get_improve_prompt, improve_existing_code
+from gpt_engineer.steps import (
+    STEPS,
+    Config as StepsConfig,
+    set_improve_filelist,
+    get_improve_prompt,
+    improve_existing_code,
+)
 
 router = APIRouter()
 
@@ -59,10 +65,12 @@ async def use_engineer(
             status_code=400,
             detail="A project with the same name already exists.",
         )
-    
+
     # Create a task that will run in the background
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, run_engineer, app_name, payload.message, current_user, StepsConfig.SIMPLE)
+    loop.run_in_executor(
+        None, run_engineer, app_name, payload.message, current_user, StepsConfig.SIMPLE
+    )
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name] = "In progress"
     operation_progress[current_user + app_name] = 0
@@ -165,7 +173,9 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
 
 
 @router.post("/run_prompt/{app_name}/{prompt_id}")
-async def run_prompt(app_name: str, prompt_id: str, current_user: str = Depends(get_current_user)):
+async def run_prompt(
+    app_name: str, prompt_id: str, current_user: str = Depends(get_current_user)
+):
     """
     Function to run a specific prompt in the project.
     """
@@ -194,7 +204,14 @@ async def run_prompt(app_name: str, prompt_id: str, current_user: str = Depends(
 
     # Run the prompt
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, run_engineer, app_name, prompts[prompt_id], current_user, StepsConfig.IMPROVE_CODE)
+    loop.run_in_executor(
+        None,
+        run_engineer_improve,
+        app_name,
+        prompts[prompt_id],
+        current_user,
+        StepsConfig.IMPROVE_CODE,
+    )
     # Update the status of the operation in the global dictionary
     operation_status[current_user + app_name + prompt_id] = "In progress"
     operation_progress[current_user + app_name + prompt_id] = 0
@@ -202,4 +219,3 @@ async def run_prompt(app_name: str, prompt_id: str, current_user: str = Depends(
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}
     )
-

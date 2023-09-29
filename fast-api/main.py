@@ -5,8 +5,6 @@ from app import app
 from pathlib import Path
 
 
-
-
 def main():
     """
     Main function to run the FastAPI application.

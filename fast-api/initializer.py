@@ -4,14 +4,23 @@ from gpt_engineer.db import DB, DBs
 from constants import *
 
 
-def initialize(app_name, current_user):
+def initialize(app_name, current_user, base_project_path=None):
     """
     Function to initialize the AI and databases.
     """
-    project_path = Path(BASE_PROJECT_PATH) / current_user / app_name
-    memory_path = project_path / "memory"
+    project_path = None
+
+    if base_project_path is None:
+        base_project_path = BASE_PROJECT_PATH
+        print("Using project print.")
+        project_path = Path(base_project_path) / current_user / app_name
+    else:
+        project_path = base_project_path
+
     workspace_path = project_path / "workspace"
-    archive_path = project_path / "archive"
+    project_metadata_path = project_path / ".gpteng"
+    memory_path = project_metadata_path / "memory"
+    archive_path = project_metadata_path / "archive"
 
     ai = AI(
         model_name=MODEL,
@@ -28,7 +37,7 @@ def initialize(app_name, current_user):
             Path(__file__).parent.parent / "gpt_engineer" / "preprompts"
         ),  # Loads preprompts from the preprompts directory
         archive=DB(archive_path),
-        project_metadata=project_path / ".gpteng",
+        project_metadata=DB(project_metadata_path),
     )
 
     return ai, dbs
