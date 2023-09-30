@@ -222,3 +222,20 @@ async def list_files(app_name: str, current_user: str = Depends(get_current_user
             detail=f"App {app_name} does not exist.",
         )
 
+@router.get("/file/{app_name}/{file_name}")
+async def get_file_content(app_name: str, file_name: str, current_user: str = Depends(get_current_user)):
+    """
+    This function is used to get the content of a file in an app.
+    It takes the app name, the file name, and the current user as parameters.
+    It returns a JSON response containing the content of the file.
+    """
+    app_path = BASE_PROJECT_PATH / current_user / app_name / "workspace" / file_name
+    if app_path.exists() and app_path.is_file():
+        with open(app_path, 'r') as file:
+            content = file.read()
+        return {"content": content}
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File {file_name} does not exist in App {app_name}.",
+        )
