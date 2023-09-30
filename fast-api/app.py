@@ -14,6 +14,9 @@ from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse
 from routes import router
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from starlette.staticfiles import StaticFiles
 
 from gpt_engineer.ai import AI
 from gpt_engineer.db import DB, DBs
@@ -29,6 +32,8 @@ operation_progress = {}
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Jinja2 templates
+templates = Jinja2Templates(directory="templates")
 
 # Load environment variables
 def load_env_if_needed():
@@ -65,3 +70,13 @@ async def add_process_time_header(request: Request, call_next):
     if "Authorization" in request.headers:
         response.headers["Authorization"] = request.headers["Authorization"]
     return response
+
+@app.get("/", response_class=HTMLResponse)
+async def read_item(request: Request):
+    """
+    Function to serve the home page.
+    """
+    return templates.TemplateResponse("index.html", {"request": request})
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
