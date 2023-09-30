@@ -37,6 +37,12 @@ class GeneratePayload(BaseModel):
 async def use_engineer(
     payload: GeneratePayload, current_user: str = Depends(get_current_user)
 ):
+    """
+    This method is used to generate a new project using the engineer.
+    It takes a payload containing the app name and the message to be processed.
+    It also takes the current user as a parameter.
+    It returns a JSON response indicating the status of the request.
+    """
     app_name = payload.appName
 
     if not app_name or " " in app_name:
@@ -81,6 +87,11 @@ async def use_engineer(
 
 @router.get("/progress/{app_name}")
 async def report_progress(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    This method is used to report the progress of a project generation.
+    It takes the app name and the current user as parameters.
+    It returns a JSON response containing the progress and percentage of completion.
+    """
     return {
         "progress": operation_status.get(current_user + app_name, "Not started"),
         "percentage": operation_progress.get(current_user + app_name, 0),
@@ -89,6 +100,11 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
 
 @router.get("/apps")
 async def list_apps(current_user: str = Depends(get_current_user)):
+    """
+    This method is used to list all the apps for a given user.
+    It takes the current user as a parameter.
+    It returns a JSON response containing a list of all the apps.
+    """
     user_path = BASE_PROJECT_PATH / current_user
     if user_path.exists():
         return {"apps": [d.name for d in user_path.iterdir() if d.is_dir()]}
@@ -98,6 +114,11 @@ async def list_apps(current_user: str = Depends(get_current_user)):
 
 @router.delete("/delete/{app_name}")
 async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    This method is used to delete an app.
+    It takes the app name and the current user as parameters.
+    It returns a JSON response indicating the status of the deletion.
+    """
     app_path = BASE_PROJECT_PATH / current_user / app_name
     if app_path.exists() and app_path.is_dir():
         shutil.rmtree(app_path)
@@ -111,6 +132,11 @@ async def delete_app(app_name: str, current_user: str = Depends(get_current_user
 
 @router.get("/download/{app_name}")
 async def download_app(app_name: str, current_user: str = Depends(get_current_user)):
+    """
+    This method is used to download an app.
+    It takes the app name and the current user as parameters.
+    It returns a file response containing the zipped app.
+    """
     app_path = BASE_PROJECT_PATH / current_user / app_name
     if app_path.exists() and app_path.is_dir():
         zip_file_path = BASE_PROJECT_PATH / current_user / f"{app_name}.zip"
@@ -139,6 +165,11 @@ async def download_app(app_name: str, current_user: str = Depends(get_current_us
 async def run_prompt(
     app_name: str, prompt_id: str, current_user: str = Depends(get_current_user)
 ):
+    """
+    This method is used to run a prompt in an app.
+    It takes the app name, prompt id and the current user as parameters.
+    It returns a JSON response indicating the status of the request.
+    """
     project_path = BASE_PROJECT_PATH / current_user / app_name
     if not project_path.exists():
         raise HTTPException(
@@ -175,12 +206,13 @@ async def run_prompt(
         content={"result": "Your request has been acknowledged and is being processed."}
     )
 
+
 @router.get("/files/{app_name}")
 async def list_files(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    Route to list all the files in the app.
-    The current user is determined using the Depends function from FastAPI.
-    The function then lists all the files in the app directory and returns them.
+    This method is used to list all the files in an app.
+    It takes the app name and the current user as parameters.
+    It returns a JSON response containing a list of all the files.
     """
     app_path = BASE_PROJECT_PATH / current_user / app_name / "workspace"
     if app_path.exists() and app_path.is_dir():
@@ -190,5 +222,3 @@ async def list_files(app_name: str, current_user: str = Depends(get_current_user
             status_code=404,
             detail=f"App {app_name} does not exist.",
         )
-
-
