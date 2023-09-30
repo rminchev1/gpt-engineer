@@ -65,4 +65,3 @@ async def register(payload: LoginPayload):
         )
 
     return {"message": "User registered successfully"}
-

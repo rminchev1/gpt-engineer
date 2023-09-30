@@ -33,16 +33,6 @@ class GeneratePayload(BaseModel):
     message: str
 
 
-@router.get("/")
-async def hello_world():
-    """
-    Test route to check if the server is running.
-    Returns a simple hello world message.
-    """
-    st = STEPS
-    return {"message": "Hello, World!"}
-
-
 @router.post("/generate")
 async def use_engineer(
     payload: GeneratePayload, current_user: str = Depends(get_current_user)
@@ -240,4 +230,3 @@ async def run_prompt(
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}
     )
-

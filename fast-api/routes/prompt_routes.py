@@ -198,4 +198,3 @@ async def list_prompts(app_name: str, current_user: str = Depends(get_current_us
         prompts = {}
 
     return {"prompts": prompts}
-

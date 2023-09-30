@@ -65,4 +65,3 @@ async def add_process_time_header(request: Request, call_next):
     if "Authorization" in request.headers:
         response.headers["Authorization"] = request.headers["Authorization"]
     return response
-
