@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import jwt
+from cryptography.fernet import Fernet
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -13,9 +14,11 @@ from passlib.context import CryptContext
 # Constants
 BASE_PROJECT_PATH = Path(os.path.dirname(os.path.abspath(__file__))) / "projects"
 TOKEN_PATH = BASE_PROJECT_PATH / "tokens.json"
+API_KEY_PATH = BASE_PROJECT_PATH / "api_keys.json"
 SECRET_KEY = "YOUR_SECRET_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ENCRYPTION_KEY = Fernet.generate_key()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -111,3 +114,34 @@ def register_user(username: str, password: str):
             users = {username: get_password_hash(password)}
             json.dump(users, file)
         return True
+
+
+def get_api_key(username: str):
+    """
+    Function to get the OpenAI API key of a user.
+    """
+    if API_KEY_PATH.exists():
+        with open(API_KEY_PATH, "r") as file:
+            api_keys = json.load(file)
+            if username in api_keys:
+                cipher_suite = Fernet(ENCRYPTION_KEY)
+                return cipher_suite.decrypt(api_keys[username].encode()).decode()
+    return None
+
+
+def set_api_key(username: str, api_key: str):
+    """
+    Function to set the OpenAI API key of a user.
+    """
+    cipher_suite = Fernet(ENCRYPTION_KEY)
+    encrypted_api_key = cipher_suite.encrypt(api_key.encode()).decode()
+    if API_KEY_PATH.exists():
+        with open(API_KEY_PATH, "r") as file:
+            api_keys = json.load(file)
+            api_keys[username] = encrypted_api_key
+        with open(API_KEY_PATH, "w") as file:
+            json.dump(api_keys, file)
+    else:
+        with open(API_KEY_PATH, "w") as file:
+            api_keys = {username: encrypted_api_key}
+            json.dump(api_keys, file)
