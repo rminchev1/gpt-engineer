@@ -1,5 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-from auth import authenticate_user, create_access_token, register_user, set_api_key, get_api_key, get_current_user
+from auth import (
+    authenticate_user,
+    create_access_token,
+    register_user,
+    set_api_key,
+    get_api_key,
+    get_current_user,
+)
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -72,7 +79,9 @@ async def register(payload: LoginPayload):
 
 
 @router.post("/set_api_key")
-async def set_api_key_route(payload: ApiKeyPayload, current_user: str = Depends(get_current_user)):
+async def set_api_key_route(
+    payload: ApiKeyPayload, current_user: str = Depends(get_current_user)
+):
     """
     Function to set the OpenAI API key of a user.
     This function takes in a payload containing the API key and the current user as parameters.
@@ -107,4 +116,3 @@ async def get_api_key_route(current_user: str = Depends(get_current_user)):
     """
     api_key = get_api_key(current_user)
     return {"api_key": api_key}
-

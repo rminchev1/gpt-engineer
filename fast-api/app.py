@@ -32,16 +32,6 @@ operation_progress = {}
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-# Load environment variables
-def load_env_if_needed():
-    """
-    Function to load environment variables if they are not already loaded.
-    """
-    if os.getenv("OPENAI_API_KEY") is None:
-        load_dotenv()
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
-
 app.include_router(router)
 
 # Now you can access the routes through the FastAPI application instance

@@ -2,12 +2,16 @@ from pathlib import Path
 from gpt_engineer.ai import AI
 from gpt_engineer.db import DB, DBs
 from constants import *
+from auth import get_api_key
+import openai
 
 
 def initialize(app_name, current_user, base_project_path=None):
     """
     Function to initialize the AI and databases.
     """
+
+    openai.api_key = get_api_key(current_user)
     project_path = None
 
     if base_project_path is None:
