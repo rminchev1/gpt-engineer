@@ -18,7 +18,7 @@ API_KEY_PATH = BASE_PROJECT_PATH / "api_keys.json"
 SECRET_KEY = "YOUR_SECRET_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-ENCRYPTION_KEY = Fernet.generate_key()
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key())
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
