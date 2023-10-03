@@ -3,7 +3,7 @@ import sys
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from auth import get_current_user
-from engineer import run_engineer, run_engineer_improve
+import engineer
 from constants import *
 
 import asyncio
@@ -26,7 +26,6 @@ router = APIRouter()
 
 operation_status = {}
 operation_progress = {}
-
 
 class GeneratePayload(BaseModel):
     appName: str
@@ -59,10 +58,10 @@ async def use_engineer(
 
     loop = asyncio.get_event_loop()
     loop.run_in_executor(
-        None, run_engineer, app_name, payload.message, current_user, StepsConfig.SIMPLE
-    )
-    operation_status[current_user + app_name] = "In progress"
-    operation_progress[current_user + app_name] = 0
+        None, engineer.run_engineer, app_name, payload.message, current_user, StepsConfig.SIMPLE
+    )    
+    engineer.operation_status[current_user + app_name] = "In progress"
+    engineer.operation_progress[current_user + app_name] = 0
 
     project_path = BASE_PROJECT_PATH / current_user / app_name
     prompts_path = project_path / "prompts.json"
@@ -92,8 +91,8 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
     It returns a JSON response containing the progress status and percentage.
     """
     return {
-        "progress": operation_status.get(current_user + app_name, "Not started"),
-        "percentage": operation_progress.get(current_user + app_name, 0),
+        "progress": engineer.operation_status.get(current_user + app_name, "Not started"),
+        "percentage": engineer.operation_progress.get(current_user + app_name, 0),
     }
 
 
@@ -192,14 +191,14 @@ async def run_prompt(
     loop = asyncio.get_event_loop()
     loop.run_in_executor(
         None,
-        run_engineer_improve,
+        engineer.run_engineer_improve,
         app_name,
         prompts[prompt_id],
         current_user,
         StepsConfig.IMPROVE_CODE,
     )
-    operation_status[current_user + app_name + prompt_id] = "In progress"
-    operation_progress[current_user + app_name + prompt_id] = 0
+    engineer.operation_status[current_user + app_name + prompt_id] = "In progress"
+    engineer.operation_progress[current_user + app_name + prompt_id] = 0
 
     return JSONResponse(
         content={"result": "Your request has been acknowledged and is being processed."}

@@ -36,10 +36,13 @@ def run_engineer(app_name, message, current_user, steps_config):
         dbs.logs[step.__name__] = ai.serialize_messages(messages)
 
         # Update the progress of the operation in the global dictionary
-        operation_progress[app_name] = (i + 1) / total_steps * 100
+        operation_progress[current_user + app_name] = (i + 1) / total_steps * 100
 
-    # Update the status of the operation in the global dictionary
-    operation_status[app_name] = "Completed"
+        # Update the status of the operation in the global dictionary
+        if (i + 1) == total_steps:
+            operation_status[current_user + app_name] = "Completed"
+        else:
+            operation_status[current_user + app_name] = "In progress"
 
 
 def run_engineer_improve(app_name, message, current_user, steps_config):
@@ -71,7 +74,7 @@ def run_engineer_improve(app_name, message, current_user, steps_config):
 
     improve_existing_code(ai, dbs)
 
-    operation_status[app_name] = "Completed"
+    operation_status[current_user + app_name] = "Completed"
 
 
 def set_improved_file_list(dbs):
@@ -87,3 +90,4 @@ def set_improved_file_list(dbs):
             for file in files:
                 file_path = os.path.join(dbs.workspace.path, file)
                 file_obj.write(f"{file_path}\n")
+
