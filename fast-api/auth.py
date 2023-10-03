@@ -6,19 +6,24 @@ from pathlib import Path
 
 import jwt
 from cryptography.fernet import Fernet
+from dotenv import load_dotenv
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Constants
 BASE_PROJECT_PATH = Path(os.path.dirname(os.path.abspath(__file__))) / "projects"
 TOKEN_PATH = BASE_PROJECT_PATH / "tokens.json"
 API_KEY_PATH = BASE_PROJECT_PATH / "api_keys.json"
-SECRET_KEY = "YOUR_SECRET_KEY"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key())
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+key = Fernet.generate_key()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
