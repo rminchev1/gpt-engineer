@@ -11,7 +11,7 @@ def initialize(app_name, current_user, base_project_path=None):
     Function to initialize the AI and databases.
     """
     openai_api_key = get_api_key(current_user)
-    openai.api_key = openai_api_key    
+    openai.api_key = openai_api_key
     project_path = None
 
     if base_project_path is None:
@@ -30,7 +30,7 @@ def initialize(app_name, current_user, base_project_path=None):
         model_name=MODEL,
         temperature=TEMPERATURE,
         azure_endpoint=AZURE_ENDPOINT,
-        openai_api_key=openai_api_key
+        openai_api_key=openai_api_key,
     )
 
     dbs = DBs(

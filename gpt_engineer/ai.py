@@ -39,7 +39,9 @@ class TokenUsage:
 
 
 class AI:
-    def __init__(self, model_name="gpt-4", temperature=0.1, azure_endpoint="", openai_api_key=""):
+    def __init__(
+        self, model_name="gpt-4", temperature=0.1, azure_endpoint="", openai_api_key=""
+    ):
         """
         Initialize the AI class.
 
@@ -55,7 +57,9 @@ class AI:
         self.model_name = (
             fallback_model(model_name) if azure_endpoint == "" else model_name
         )
-        self.llm = create_chat_model(self, self.model_name, self.temperature, openai_api_key)
+        self.llm = create_chat_model(
+            self, self.model_name, self.temperature, openai_api_key
+        )
         self.tokenizer = get_tokenizer(self.model_name)
         logger.debug(f"Using model {self.model_name} with llm {self.llm}")
 
@@ -375,7 +379,7 @@ def create_chat_model(self, model: str, temperature, openai_api_key="") -> BaseC
     temperature : float
         The temperature to use for the model.
     openai_api_key : str
-        OpenAI API key 
+        OpenAI API key
 
     Returns
     -------
@@ -389,7 +393,7 @@ def create_chat_model(self, model: str, temperature, openai_api_key="") -> BaseC
             deployment_name=model,
             openai_api_type="azure",
             streaming=True,
-            openai_api_key=openai_api_key
+            openai_api_key=openai_api_key,
         )
     # Fetch available models from OpenAI API
     supported = [model["id"] for model in openai.Model.list()["data"]]
@@ -402,7 +406,7 @@ def create_chat_model(self, model: str, temperature, openai_api_key="") -> BaseC
         temperature=temperature,
         streaming=True,
         client=openai.ChatCompletion,
-        openai_api_key=openai_api_key
+        openai_api_key=openai_api_key,
     )
 
 
