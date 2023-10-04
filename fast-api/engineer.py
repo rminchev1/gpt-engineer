@@ -68,7 +68,7 @@ def run_engineer_improve(app_name, message, current_user, steps_config):
 
     ai, dbs = initialize(app_name, current_user, app_base_path)
 
-    dbs.input["prompt"] = message
+    dbs.input["prompt"] = message['prompt']
 
     set_improved_file_list(dbs)
 
