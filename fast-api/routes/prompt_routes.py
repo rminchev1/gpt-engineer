@@ -4,6 +4,7 @@ from auth import get_current_user
 from constants import *
 import uuid
 import json
+from datetime import datetime
 
 router = APIRouter()
 
@@ -59,7 +60,10 @@ async def add_prompt(
         prompts = {}
 
     prompt_id = str(uuid.uuid4())
-    prompts[prompt_id] = prompt
+    prompts[prompt_id] = {
+        "prompt": prompt,
+        "date_created": datetime.now().isoformat(),
+    }
 
     with open(prompts_path, "w") as file:
         json.dump(prompts, file)
@@ -151,7 +155,7 @@ async def update_prompt(
         prompts = json.load(file)
 
     if prompt_id in prompts:
-        prompts[prompt_id] = new_prompt
+        prompts[prompt_id]["prompt"] = new_prompt
         with open(prompts_path, "w") as file:
             json.dump(prompts, file)
         return {"message": f"Prompt updated in project {app_name}."}
@@ -198,3 +202,4 @@ async def list_prompts(app_name: str, current_user: str = Depends(get_current_us
         prompts = {}
 
     return {"prompts": prompts}
+
