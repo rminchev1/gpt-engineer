@@ -37,9 +37,10 @@ async def use_engineer(
     payload: GeneratePayload, current_user: str = Depends(get_current_user)
 ):
     """
-    This function is used to generate a new project using the engineer.
-    It takes a payload containing the app name and a message, and the current user as parameters.
-    It returns a JSON response indicating that the request has been acknowledged and is being processed.
+    Endpoint to generate a new project using the engineer tool.
+    The request body should contain a JSON object with the following properties:
+    - appName: The name of the application to be generated.
+    - message: The message to be used as a prompt for the engineer tool.
     """
     app_name = payload.appName
 
@@ -86,9 +87,8 @@ async def use_engineer(
 @router.get("/progress/{app_name}")
 async def report_progress(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    This function is used to report the progress of a project generation.
-    It takes the app name and the current user as parameters.
-    It returns a JSON response containing the progress status and percentage.
+    Endpoint to get the progress of a project generation operation.
+    The path parameter should be the name of the application.
     """
     return {
         "progress": engineer.operation_status.get(current_user + app_name, "Not started"),
@@ -99,9 +99,7 @@ async def report_progress(app_name: str, current_user: str = Depends(get_current
 @router.get("/apps")
 async def list_apps(current_user: str = Depends(get_current_user)):
     """
-    This function is used to list all the apps of a user.
-    It takes the current user as a parameter.
-    It returns a JSON response containing a list of all the app names.
+    Endpoint to get a list of all applications created by the current user.
     """
     user_path = BASE_PROJECT_PATH / current_user
     if user_path.exists():
@@ -113,9 +111,8 @@ async def list_apps(current_user: str = Depends(get_current_user)):
 @router.delete("/delete/{app_name}")
 async def delete_app(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    This function is used to delete an app.
-    It takes the app name and the current user as parameters.
-    It returns a JSON response indicating that the app has been successfully deleted.
+    Endpoint to delete an application.
+    The path parameter should be the name of the application to be deleted.
     """
     app_path = BASE_PROJECT_PATH / current_user / app_name
     if app_path.exists() and app_path.is_dir():
@@ -131,9 +128,8 @@ async def delete_app(app_name: str, current_user: str = Depends(get_current_user
 @router.get("/download/{app_name}")
 async def download_app(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    This function is used to download an app.
-    It takes the app name and the current user as parameters.
-    It returns a FileResponse containing the zipped app files.
+    Endpoint to download an application as a zip file.
+    The path parameter should be the name of the application to be downloaded.
     """
     app_path = BASE_PROJECT_PATH / current_user / app_name
     if app_path.exists() and app_path.is_dir():
@@ -164,9 +160,8 @@ async def run_prompt(
     app_name: str, prompt_id: str, current_user: str = Depends(get_current_user)
 ):
     """
-    This function is used to run a prompt in an app.
-    It takes the app name, the prompt id, and the current user as parameters.
-    It returns a JSON response indicating that the request has been acknowledged and is being processed.
+    Endpoint to run a prompt on an existing application.
+    The path parameters should be the name of the application and the id of the prompt.
     """
     project_path = BASE_PROJECT_PATH / current_user / app_name
     if not project_path.exists():
@@ -208,9 +203,8 @@ async def run_prompt(
 @router.get("/files/{app_name}")
 async def list_files(app_name: str, current_user: str = Depends(get_current_user)):
     """
-    This function is used to list all the files in an app.
-    It takes the app name and the current user as parameters.
-    It returns a JSON response containing a list of all the files along with their relative paths.
+    Endpoint to get a list of all files in an application.
+    The path parameter should be the name of the application.
     """
     app_path = BASE_PROJECT_PATH / current_user / app_name / "workspace"
     if app_path.exists() and app_path.is_dir():
@@ -226,16 +220,15 @@ async def list_files(app_name: str, current_user: str = Depends(get_current_user
         )
 
 
-@router.get("/file/{app_name}/{file_name}")
+@router.get("/file/{app_name}/{file_path:path}")
 async def get_file_content(
-    app_name: str, file_name: str, current_user: str = Depends(get_current_user)
+    app_name: str, file_path: str, current_user: str = Depends(get_current_user)
 ):
     """
-    This function is used to get the content of a file in an app.
-    It takes the app name, the file name, and the current user as parameters.
-    It returns a JSON response containing the content of the file.
+    Endpoint to get the content of a file in an application.
+    The path parameters should be the name of the application and the path of the file.
     """
-    app_path = BASE_PROJECT_PATH / current_user / app_name / "workspace" / file_name
+    app_path = BASE_PROJECT_PATH / current_user / app_name / "workspace" / file_path
     if app_path.exists() and app_path.is_file():
         with open(app_path, "r") as file:
             content = file.read()
@@ -243,5 +236,5 @@ async def get_file_content(
     else:
         raise HTTPException(
             status_code=404,
-            detail=f"File {file_name} does not exist in App {app_name}.",
+            detail=f"File {file_path} does not exist in App {app_name}.",
         )
