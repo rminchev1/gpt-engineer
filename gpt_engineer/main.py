@@ -40,6 +40,12 @@ def main(
         "-i",
         help="Improve code from existing project.",
     ),
+    improve_mode_plus: bool = typer.Option(
+        False,
+        "--improve-plus",
+        "-ip",
+        help="Improve code from existing project outside of the workspace folder",
+    ),
     lite_mode: bool = typer.Option(
         False,
         "--lite",
@@ -68,6 +74,9 @@ def main(
         if steps_config == StepsConfig.DEFAULT:
             steps_config = StepsConfig.LITE
 
+    if improve_mode is not True: 
+            improve_mode = True if improve_mode_plus else False
+
     if improve_mode:
         assert (
             steps_config == StepsConfig.DEFAULT
@@ -85,7 +94,7 @@ def main(
     input_path = Path(project_path).absolute()
     print("Running gpt-engineer in", input_path, "\n")
 
-    workspace_path = input_path #/ "workspace" running with -i is causing issues b/c it can't work on a existing code base
+    workspace_path = input_path if improve_mode_plus else input_path / "workspace" 
     project_metadata_path = input_path / ".gpteng"
     memory_path = project_metadata_path / "memory"
     archive_path = project_metadata_path / "archive"
