@@ -27,6 +27,7 @@ router = APIRouter()
 operation_status = {}
 operation_progress = {}
 
+
 class GeneratePayload(BaseModel):
     appName: str
     message: str
@@ -59,8 +60,13 @@ async def use_engineer(
 
     loop = asyncio.get_event_loop()
     loop.run_in_executor(
-        None, engineer.run_engineer, app_name, payload.message, current_user, StepsConfig.SIMPLE
-    )    
+        None,
+        engineer.run_engineer,
+        app_name,
+        payload.message,
+        current_user,
+        StepsConfig.SIMPLE,
+    )
     engineer.operation_status[current_user + app_name] = "In progress"
     engineer.operation_progress[current_user + app_name] = 0
 

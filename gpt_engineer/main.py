@@ -74,8 +74,8 @@ def main(
         if steps_config == StepsConfig.DEFAULT:
             steps_config = StepsConfig.LITE
 
-    if improve_mode is not True: 
-            improve_mode = True if improve_mode_plus else False
+    if improve_mode is not True:
+        improve_mode = True if improve_mode_plus else False
 
     if improve_mode:
         assert (
@@ -94,7 +94,7 @@ def main(
     input_path = Path(project_path).absolute()
     print("Running gpt-engineer in", input_path, "\n")
 
-    workspace_path = input_path if improve_mode_plus else input_path / "workspace" 
+    workspace_path = input_path if improve_mode_plus else input_path / "workspace"
     project_metadata_path = input_path / ".gpteng"
     memory_path = project_metadata_path / "memory"
     archive_path = project_metadata_path / "archive"
