@@ -7,7 +7,7 @@ import tkinter.filedialog as fd
 from pathlib import Path
 from typing import List, Union
 
-IGNORE_FOLDERS = {"site-packages", "node_modules", "venv"}
+IGNORE_FOLDERS = {"site-packages", "node_modules", "venv", "bin", "obj", "wwwroot"}
 FILE_LIST_NAME = "file_list.txt"
 
 
