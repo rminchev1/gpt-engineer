@@ -63,14 +63,15 @@ def main(
     )
 
     input_path = Path(project_path).absolute()
-    memory_path = input_path / "memory"
-    workspace_path = input_path / "workspace"
-    archive_path = input_path / "archive"
+    workspace_path = input_path
+    base_metadata_path = input_path / ".gpteng"
+    memory_path = base_metadata_path / "memory"
+    archive_path = base_metadata_path / "archive"
 
     dbs = DBs(
         memory=DB(memory_path),
         logs=DB(memory_path / "logs"),
-        input=DB(input_path),
+        input=DB(workspace_path),
         workspace=DB(workspace_path),
         preprompts=DB(
             Path(__file__).parent / "preprompts"
