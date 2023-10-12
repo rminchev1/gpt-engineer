@@ -69,6 +69,24 @@ def to_files(chat, workspace):
         workspace[file_name] = file_content
 
 
+def to_files_(chat, dbs):
+    """
+    Parse the chat and add all extracted files to the workspace.
+
+    Parameters
+    ----------
+    chat : str
+        The chat to parse.
+    workspace : dict
+        The workspace to add the files to.
+    """
+    dbs.project_metadata["all_output.txt"] = chat
+
+    files = parse_chat(chat)
+    for file_name, file_content in files:
+        dbs.workspace[file_name] = file_content
+
+
 def overwrite_files(chat, dbs):
     """
     Replace the AI files with the older local files.
@@ -82,12 +100,14 @@ def overwrite_files(chat, dbs):
     replace_files : dict
         A dictionary mapping file names to file paths of the local files.
     """
-    dbs.workspace["all_output.txt"] = chat
+    dbs.project_metadata[
+        "all_output.txt"
+    ] = chat  # files_info = get_code_strings(dbs.project_metadata)
 
     files = parse_chat(chat)
     for file_name, file_content in files:
         if file_name == "README.md":
-            dbs.workspace["LAST_MODIFICATION_README.md"] = file_content
+            dbs.project_metadata["LAST_MODIFICATION_README.md"] = file_content
         else:
             dbs.workspace[file_name] = file_content
 

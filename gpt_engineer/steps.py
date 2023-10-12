@@ -1,3 +1,4 @@
+import os
 import inspect
 import re
 import subprocess
@@ -14,6 +15,7 @@ from gpt_engineer.chat_to_files import (
     get_code_strings,
     overwrite_files,
     to_files,
+    to_files_,
 )
 from gpt_engineer.db import DBs
 from gpt_engineer.file_selector import FILE_LIST_NAME, ask_for_files
@@ -81,7 +83,14 @@ def curr_fn() -> str:
 def simple_gen(ai: AI, dbs: DBs) -> List[Message]:
     """Run the AI on the main prompt and save the results"""
     messages = ai.start(setup_sys_prompt(dbs), get_prompt(dbs), step_name=curr_fn())
-    to_files(messages[-1].content.strip(), dbs.workspace)
+
+    SERVICE_MODE = os.environ.get("SERVICE_MODE", False)
+
+    if SERVICE_MODE:
+        to_files_(messages[-1].content.strip(), dbs)
+    else:
+        to_files(messages[-1].content.strip(), dbs.workspace)
+
     return messages
 
 
@@ -273,7 +282,7 @@ def gen_entrypoint(ai: AI, dbs: DBs) -> List[dict]:
             "Do not use placeholders, use example values (like . for a folder argument) "
             "if necessary.\n"
         ),
-        user="Information about the codebase:\n\n" + dbs.workspace["all_output.txt"],
+        user="Information about the codebase:\n\n" + dbs.project_metadata["all_output.txt"],
         step_name=curr_fn(),
     )
     print()
@@ -357,7 +366,7 @@ def improve_existing_code(ai: AI, dbs: DBs):
     to sent the formatted prompt to the LLM.
     """
 
-    files_info = get_code_strings(dbs.input)  # this only has file names not paths
+    files_info = get_code_strings(dbs.input)
 
     messages = [
         ai.fsystem(setup_sys_prompt_existing_code(dbs)),
@@ -441,7 +450,7 @@ STEPS = {
     Config.SIMPLE: [
         simple_gen,
         gen_entrypoint,
-        execute_entrypoint,
+        # execute_entrypoint,
     ],
     Config.TDD: [
         gen_spec,
