@@ -45,7 +45,7 @@ def parse_chat(chat) -> List[Tuple[str, str]]:
 
     # Get all the text before the first ``` block
     readme = chat.split("```")[0]
-    files.append(("README.md", readme))
+    files.append(("LAST_MODIFICATION_README.md", readme))
 
     # Return the files
     return files
@@ -106,7 +106,7 @@ def overwrite_files(chat, dbs):
 
     files = parse_chat(chat)
     for file_name, file_content in files:
-        if file_name == "README.md":
+        if file_name == "LAST_MODIFICATION_README.md":
             dbs.project_metadata["LAST_MODIFICATION_README.md"] = file_content
         else:
             dbs.workspace[file_name] = file_content
