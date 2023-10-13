@@ -46,6 +46,7 @@ import tkinter.filedialog as fd
 
 from pathlib import Path
 from typing import List, Union
+from gpt_engineer.core.db import DB, DBs
 
 IGNORE_FOLDERS = {"site-packages", "node_modules", "venv", "bin", "obj", "wwwroot"}
 FILE_LIST_NAME = "file_list.txt"
