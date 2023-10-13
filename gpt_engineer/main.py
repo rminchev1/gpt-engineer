@@ -77,6 +77,7 @@ def main(
             Path(__file__).parent / "preprompts"
         ),  # Loads preprompts from the preprompts directory
         archive=DB(archive_path),
+        project_metadata=DB(base_metadata_path),
     )
 
     if steps_config not in [
