@@ -282,7 +282,8 @@ def gen_entrypoint(ai: AI, dbs: DBs) -> List[dict]:
             "Do not use placeholders, use example values (like . for a folder argument) "
             "if necessary.\n"
         ),
-        user="Information about the codebase:\n\n" + dbs.project_metadata["all_output.txt"],
+        user="Information about the codebase:\n\n"
+        + dbs.project_metadata["all_output.txt"],
         step_name=curr_fn(),
     )
     print()
