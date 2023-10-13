@@ -651,6 +651,7 @@ class Config(str, Enum):
     IMPROVE_CODE = "improve_code"
     EVAL_IMPROVE_CODE = "eval_improve_code"
     EVAL_NEW_CODE = "eval_new_code"
+    APPSFORGE_GEN = "appsfoge_gen"
 
 
 STEPS = {
@@ -689,6 +690,7 @@ STEPS = {
     ],
     Config.EVAL_IMPROVE_CODE: [assert_files_ready, improve_existing_code],
     Config.EVAL_NEW_CODE: [simple_gen],
+    Config.APPSFORGE_GEN: [simple_gen, gen_entrypoint],
 }
 """
 A dictionary mapping Config modes to a list of associated processing steps.
