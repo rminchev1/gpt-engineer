@@ -129,7 +129,6 @@ class AI:
             Count the total number of tokens in a list of messages.
         """
 
-    
         """
         Initialize the AI class.
 
