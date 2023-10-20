@@ -65,7 +65,7 @@ CRITICAL INSTRUCTION REGARDING FILE NAMES:
 - Always return the file name in the exact format as it was provided to you. Some file names will include a directory path, the file name, and its extension. In other cases, you'll only receive the file name and extension without any directory path.
 
 Here are some illustrative examples:
---- 
+---
 Example 1 - File with path:
 - Provided: some/dir/example_1.py
 - Your Output: some/dir/example_1.py
