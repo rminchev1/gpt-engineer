@@ -11,26 +11,38 @@ import time
 from typing import Any, List, Optional
 
 from gpt_engineer.core.ai import AI, Message
-from gpt_engineer.core.chat_to_files import format_file_to_input, get_code_strings, overwrite_files_with_edits, to_files_and_memory
+from gpt_engineer.core.chat_to_files import (
+    format_file_to_input,
+    get_code_strings,
+    overwrite_files_with_edits,
+    to_files_and_memory,
+)
 from gpt_engineer.core.db import DBs
-from gpt_engineer.core.steps import STEPS, setup_sys_prompt, setup_sys_prompt_existing_code, curr_fn
+from gpt_engineer.core.steps import (
+    STEPS,
+    setup_sys_prompt,
+    setup_sys_prompt_existing_code,
+    curr_fn,
+)
 
 from langchain.callbacks.openai_info import MODEL_COST_PER_1K_TOKENS
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.schema import (    
+from langchain.schema import (
     LLMResult,
     AIMessage,
     HumanMessage,
-    SystemMessage,    
+    SystemMessage,
 )
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 class StreamInterceptor(BaseCallbackHandler):
     """
     A class used to intercept and handle the stream of tokens from the LLM.
     """
+
     def __init__(self):
         """
         Initialize the StreamInterceptor class.
@@ -38,7 +50,7 @@ class StreamInterceptor(BaseCallbackHandler):
         self.tokens = ""
         self.llm_started = False
         self.llm_finished = False
-    
+
     def on_llm_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
     ) -> None:
@@ -79,8 +91,8 @@ class StreamInterceptor(BaseCallbackHandler):
         List[str]
             The list of tokens.
         """
-        """Return all tokens and clear the list."""    
-        return_tokens = self.tokens             
+        """Return all tokens and clear the list."""
+        return_tokens = self.tokens
         self.tokens = ""
         return return_tokens
 
@@ -96,7 +108,7 @@ class StreamInterceptor(BaseCallbackHandler):
             Additional arguments.
         """
         """Run when LLM ends running."""
-        #print(response)
+        # print(response)
         self.llm_finished = True
 
 
@@ -104,7 +116,7 @@ class AIAppsforge(AI):
     """
     A class that extends the AI class to provide additional functionality.
     """
-    
+
     def next(
         self,
         messages: List[Message],
@@ -205,17 +217,7 @@ def improve_code(ai: AI, dbs: DBs, output_tokens: List[str]):
 
     # messages = ai.next(messages, step_name=curr_fn())
 
-    call_next_thread = threading.Thread(target=call_next, args=(ai, messages, curr_fn))
-    call_next_thread.start()
-
-    time.sleep(3)
-
-    while not ai.streaming_handler.llm_finished:
-        tokens = ai.streaming_handler.get_tokens()
-        output_tokens.append(tokens)
-        time.sleep(1)
-
-    call_next_thread.join()
+    messages = run_llm_and_get_tokens(ai, messages, output_tokens, curr_fn)
 
     overwrite_files_with_edits(messages[-1].content.strip(), dbs)
     return messages
@@ -243,24 +245,15 @@ def app_simple_gen(ai: AI, dbs: DBs, output_tokens: List[str]) -> List[Message]:
     messages: List[Message] = [
         SystemMessage(content=setup_sys_prompt(dbs)),
         HumanMessage(content=dbs.input["prompt"]),
-        ]
-    
+    ]
+
     # messages = ai.start(setup_sys_prompt(dbs), dbs.input["prompt"], step_name=curr_fn())
-    
-    call_next_thread = threading.Thread(target=call_next, args=(ai, messages, curr_fn))
-    call_next_thread.start()
 
-    time.sleep(3)
-
-    while not ai.streaming_handler.llm_finished:
-        tokens = ai.streaming_handler.get_tokens()
-        output_tokens += tokens
-        time.sleep(1)
-
-    call_next_thread.join()
+    messages = run_llm_and_get_tokens(ai, messages, output_tokens, curr_fn)
 
     to_files_and_memory(messages[-1].content.strip(), dbs)
     return messages
+
 
 # Create a function that calls the next method
 def call_next(ai, messages, curr_fn):
@@ -277,3 +270,40 @@ def call_next(ai, messages, curr_fn):
         The current function.
     """
     ai.next(messages, step_name=curr_fn())
+
+
+def run_llm_and_get_tokens(
+    ai: AI, messages: List[Message], output_tokens: List[str], curr_fn: function
+) -> List[Message]:
+    """
+    Function to run the LLM and continuously get tokens until the LLM is finished.
+
+    Parameters
+    ----------
+    ai : AI
+        The AI object.
+    messages : List[Message]
+        The list of messages.
+    output_tokens : List[str]
+        The list of output tokens.
+    curr_fn : function
+        The current function.
+
+    Returns
+    -------
+    List[Message]
+        The list of messages.
+    """
+    call_next_thread = threading.Thread(target=call_next, args=(ai, messages, curr_fn))
+    call_next_thread.start()
+
+    time.sleep(3)
+
+    while not ai.streaming_handler.llm_finished:
+        tokens = ai.streaming_handler.get_tokens()
+        output_tokens += tokens
+        time.sleep(1)
+
+    call_next_thread.join()
+
+    return messages
