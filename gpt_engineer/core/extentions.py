@@ -117,6 +117,12 @@ class AIAppsforge(AI):
     A class that extends the AI class to provide additional functionality.
     """
 
+    def __init__(
+        self, model_name="gpt-4", temperature=0.1, azure_endpoint="", openai_api_key=""
+    ):
+        super().__init__(model_name, temperature, azure_endpoint, openai_api_key)
+        self.streaming_handler = StreamInterceptor()
+
     def next(
         self,
         messages: List[Message],
@@ -167,9 +173,6 @@ class AIAppsforge(AI):
             messages.append(self.fuser(prompt))
 
         logger.debug(f"Creating a new chat completion: {messages}")
-
-        self.streaming_handler = StreamInterceptor()
-
         callbacks = [self.streaming_handler]
         response = self.backoff_inference(messages, callbacks)
 
@@ -215,8 +218,6 @@ def improve_code(ai: AI, dbs: DBs, output_tokens: List[str]):
 
     messages.append(ai.fuser(f"Request: {dbs.input['prompt']}"))
 
-    # messages = ai.next(messages, step_name=curr_fn())
-
     messages = run_llm_and_get_tokens(ai, messages, output_tokens, curr_fn)
 
     overwrite_files_with_edits(messages[-1].content.strip(), dbs)
@@ -246,8 +247,6 @@ def app_simple_gen(ai: AI, dbs: DBs, output_tokens: List[str]) -> List[Message]:
         SystemMessage(content=setup_sys_prompt(dbs)),
         HumanMessage(content=dbs.input["prompt"]),
     ]
-
-    # messages = ai.start(setup_sys_prompt(dbs), dbs.input["prompt"], step_name=curr_fn())
 
     messages = run_llm_and_get_tokens(ai, messages, output_tokens, curr_fn)
 
@@ -297,12 +296,10 @@ def run_llm_and_get_tokens(
     call_next_thread = threading.Thread(target=call_next, args=(ai, messages, curr_fn))
     call_next_thread.start()
 
-    time.sleep(3)
-
     while not ai.streaming_handler.llm_finished:
         tokens = ai.streaming_handler.get_tokens()
         output_tokens += tokens
-        time.sleep(1)
+        time.sleep(0.05)
 
     call_next_thread.join()
 
