@@ -82,7 +82,7 @@ class StreamInterceptor(BaseCallbackHandler):
         """Run on new LLM token. Only available when streaming is enabled."""
         self.tokens += token
 
-    def get_tokens(self) -> List[str]:
+    def get_tokens(self) -> str:
         """
         Method to return all tokens and clear the list.
 
@@ -298,7 +298,7 @@ def run_llm_and_get_tokens(
 
     while not ai.streaming_handler.llm_finished:
         tokens = ai.streaming_handler.get_tokens()
-        output_tokens += tokens
+        output_tokens.append(tokens)  
         time.sleep(0.05)
 
     call_next_thread.join()
