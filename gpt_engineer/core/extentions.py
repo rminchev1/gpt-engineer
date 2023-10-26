@@ -118,7 +118,7 @@ class AIAppsforge(AI):
     """
 
     def __init__(
-        self, model_name="gpt-4", temperature=0.1, azure_endpoint="", openai_api_key=""
+        self, model_name="gpt-4", temperature=0, azure_endpoint="", openai_api_key=""
     ):
         super().__init__(model_name, temperature, azure_endpoint, openai_api_key)
         self.streaming_handler = StreamInterceptor()
@@ -299,7 +299,7 @@ def run_llm_and_get_tokens(
     while not ai.streaming_handler.llm_finished:
         tokens = ai.streaming_handler.get_tokens()
         output_tokens.append(tokens)  
-        time.sleep(0.05)
+        time.sleep(0.1)
 
     call_next_thread.join()
 

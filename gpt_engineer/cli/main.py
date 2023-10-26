@@ -80,7 +80,7 @@ def preprompts_path(use_custom_preprompts: bool, input_path: Path = None) -> Pat
 def main(
     project_path: str = typer.Argument("projects/example", help="path"),
     model: str = typer.Argument("gpt-4", help="model id string"),
-    temperature: float = 0.1,
+    temperature: float = 0,
     steps_config: StepsConfig = typer.Option(
         StepsConfig.DEFAULT, "--steps", "-s", help="decide which steps to run"
     ),
