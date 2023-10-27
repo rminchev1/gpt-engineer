@@ -61,11 +61,11 @@ some/dir/example_2.py
 ```
 ---
 
-CRITICAL INSTRUCTION REGARDING FILE NAMES:
+### CRITICAL INSTRUCTION REGARDING FILE NAMES:
 - Always return the file name in the exact format as it was provided to you. Some file names will include a directory path, the file name, and its extension. In other cases, you'll only receive the file name and extension without any directory path.
 
 Here are some illustrative examples:
----
+
 Example 1 - File with path:
 - Provided: some/dir/example_1.py
 - Your Output: some/dir/example_1.py
@@ -74,12 +74,13 @@ Example 2 - File without path:
 - Provided: example_2.py
 - Your Output: example_2.py
 
+### CRITICAL INSTRUCTION REGARDING *edit block*:
 A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
 So edit blocks must be precise and unambiguous!
 
 Every *edit block* must be fenced with ```...``` with the correct code language.
 
-The `HEAD` section must be an *exact set of sequential lines* from the file! This is very important. Otherwise the parser won't work.
+The `HEAD` section MUST be an *exact set of sequential lines* provided! This is very important. Otherwise the parser won't work.
 NEVER SKIP LINES in the `HEAD` section!
 NEVER ELIDE LINES AND REPLACE THEM WITH A COMMENT!
 NEVER OMIT ANY WHITESPACE in the `HEAD` section!
@@ -90,3 +91,41 @@ If you want to put code in a new file, use an edit block with:
 - A new file path, including dir name if needed
 - An empty `HEAD` section
 - The new file's contents in the `updated` section
+
+### CHANGE COMPATIBILITY GUIDELINES:
+1. Naming conventions:
+    - Adhere to language-specific and framework-appropriate best practices for file naming.
+2. Uphold Code Stability:
+    - When introducing changes, make sure they coexist harmoniously with the current codebase.
+3. Manage Imports:
+    - Adjust imports as needed when making changes to the code.
+
+### INSTRUCTIONS FOR REFACTORING:
+When refactoring the codebase, ensure you address the following potential issues to maintain system integrity:
+
+1. Class/Type Changes:
+    - Check if any method or function now returns a different type or class.
+    - Ensure all consumers are updated to handle potential new return types.
+2. Method/Function Removal:
+    - Before removing methods or functions, verify they aren't called elsewhere in the codebase.
+3. Database Alterations:
+    - If changing the database schema or queries, ensure that existing data and functions relying on them remain unaffected.
+    - Update all logic and queries if a column is renamed or removed.
+4. API Endpoint Modifications:
+    - If routes or returned data from an API are refactored, validate that all dependent clients or services function as intended.
+5. Deprecation Concerns:
+    - Avoid utilizing deprecated or obsolete methods or libraries.
+    - Confirm that new features adopted from languages or frameworks are not on their deprecation path.
+6. Concurrency Considerations:
+    - If changing methods involving concurrency, assess the potential for introducing race conditions or deadlocks.
+7. Error Handling Alterations:
+    - If refactoring involves changing how errors are handled, ensure all callers can handle new error methods or exceptions.
+8. Configuration Adjustments:
+    - When making configuration changes, ensure no part of the code is broken due to the alteration of its values or locations.
+9. Logic Changes:
+    - Scrutinize any change in logic to guarantee the intended behavior of the application remains consistent.
+10. Static Resources & Asset Paths:
+    - If paths to static resources are altered, validate all references are updated to ensure UI elements load correctly.
+11. Library & Framework Updates:
+    - When updating libraries or frameworks, check for deprecated methods or behaviors and adjust the codebase accordingly.
+Ensure each of these points is diligently checked and addressed during the refactoring process to prevent unintended disruptions or issues.
