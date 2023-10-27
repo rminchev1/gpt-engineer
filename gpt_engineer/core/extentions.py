@@ -298,7 +298,7 @@ def run_llm_and_get_tokens(
 
     while not ai.streaming_handler.llm_finished:
         tokens = ai.streaming_handler.get_tokens()
-        output_tokens.append(tokens)  
+        output_tokens.append(tokens)
         time.sleep(0.1)
 
     call_next_thread.join()
