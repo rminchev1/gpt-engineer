@@ -279,17 +279,19 @@ def parse_edits(llm_response):
 def apply_edits(edits: List[Edit], workspace: DB):
     for edit in edits:
         filename = edit.filename
-        if edit.before == "":
-            if workspace.get(filename) is not None:
-                logger.warn(
-                    f"The edit to be applied wants to create a new file `{filename}`, but that already exists. The file will be overwritten. See `.gpteng/memory` for previous version."
-                )
-            workspace[filename] = edit.after  # new file
+        file_content = workspace.get(filename)
+        if edit.before == "" and file_content is not None:
+            # append edit block to the end of the file, instead of overwriting it
+            workspace[filename] = file_content + edit.after  # append to a file
+            logger.warn(f"The Edit block is appended to `{filename}` .")
         else:
-            if workspace[filename].count(edit.before) > 1:
+            if file_content and file_content.count(edit.before) > 1:
                 logger.warn(
                     f"While applying an edit to `{filename}`, the code block to be replaced was found multiple times. All instances will be replaced."
                 )
-            workspace[filename] = workspace[filename].replace(
-                edit.before, edit.after
-            )  # existing file
+            if file_content:
+                workspace[filename] = file_content.replace(
+                    edit.before, edit.after
+                )  # existing file updates
+            else:
+                workspace[filename] = edit.after  # new files creation

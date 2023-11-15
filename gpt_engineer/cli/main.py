@@ -79,7 +79,7 @@ def preprompts_path(use_custom_preprompts: bool, input_path: Path = None) -> Pat
 @app.command()
 def main(
     project_path: str = typer.Argument("projects/example", help="path"),
-    model: str = typer.Argument("gpt-4", help="model id string"),
+    model: str = typer.Argument("gpt-4-1106-preview", help="model id string"),
     temperature: float = 0,
     steps_config: StepsConfig = typer.Option(
         StepsConfig.DEFAULT, "--steps", "-s", help="decide which steps to run"
@@ -169,7 +169,7 @@ def main(
         messages = step(ai, dbs)
         dbs.logs[step.__name__] = AI.serialize_messages(messages)
 
-    print("Total api cost: $ ", ai.usage_cost())
+    # print("Total api cost: $ ", ai.usage_cost())
 
     if collect_consent():
         collect_learnings(model, temperature, steps, dbs)

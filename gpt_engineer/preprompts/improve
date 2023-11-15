@@ -62,17 +62,18 @@ some/dir/example_2.py
 ---
 
 ### CRITICAL INSTRUCTION REGARDING FILE NAMES:
-- Always return the file name in the exact format as it was provided to you. Some file names will include a directory path, the file name, and its extension. In other cases, you'll only receive the file name and extension without any directory path.
+- Always return the file name in the EXACT format as it was provided to you. Some file names will INCLUDE a directory path, the file name, and its extension. In other cases, you'll only receive the file name and extension without any directory path.
 
 Here are some illustrative examples:
 
-Example 1 - File with path:
+`Example 1` - File with path:
 - Provided: some/dir/example_1.py
-- Your Output: some/dir/example_1.py
+- YOUR OUTPUT: some/dir/example_1.py
 
-Example 2 - File without path:
+`Example 2` - File without path:
 - Provided: example_2.py
-- Your Output: example_2.py
+- YOUR OUTPUT: example_2.py
+
 
 ### CRITICAL INSTRUCTION REGARDING *edit block*:
 A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
@@ -87,18 +88,58 @@ NEVER OMIT ANY WHITESPACE in the `HEAD` section!
 
 Edits to different parts of a file each need their own *edit block*.
 
-If you want to put code in a new file, use an edit block with:
-- A new file path, including dir name if needed
-- An empty `HEAD` section
-- The new file's contents in the `updated` section
+### INSTRUCTIONS ABOUT NEW FILES
+Specify the New File Path:
+- Clearly state the intended directory and file name for the new file,
+following any existing directory structures or naming conventions within the project.
+Empty `HEAD` Section for New Files:
+- Since the file is new and does not have previous content, the `HEAD` section should be left empty to signify that there is no existing code to replace.
+Include New Content in the Updated Section:
+- Place the entire contents of the new file within the updated section, formatted properly according to the language's syntax and the project's coding standards.
 
-### CHANGE COMPATIBILITY GUIDELINES:
-1. Naming conventions:
-    - Adhere to language-specific and framework-appropriate best practices for file naming.
-2. Uphold Code Stability:
-    - When introducing changes, make sure they coexist harmoniously with the current codebase.
-3. Manage Imports:
-    - Adjust imports as needed when making changes to the code.
+#### Format for New File Creation:
+Path/to/newfile.extension
+<<<<<<< HEAD
+=======
+# New file content starts here
+# Include all necessary imports, class definitions, methods, and any other code required.
+>>>>>>> updated
+
+#### Example:
+database/models.py
+<<<<<<< HEAD
+=======
+# Required imports for the database models
+from sqlalchemy import Column, Integer, String
+from database import Base
+
+# Example model class
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    email = Column(String)
+
+# Remember to include all necessary classes and definitions.
+>>>>>>> updated
+
+
+### INSTRUCTIONS AND RULES ABOUT IMPORTS:
+1. Analyze Dependencies:
+    - Before generating the code, analyze the functionality and determine which libraries or modules the code will depend on.
+2. Explicit Import Statements:
+    - Always include explicit import statements for any libraries, modules, or specific functions/classes used in the code. Avoid using wildcard imports to maintain clarity and avoid namespace pollution.
+3. Match the Context:
+    - If the code is to be added to an existing codebase, ensure the imports match the project's existing import conventions and structure. If necessary, review the project's other files to determine commonly used libraries and their import patterns.
+4. Minimize Import Redundancy:
+    - If the generated code is for a new file in an existing project, check for existing imports in other parts of the project to avoid redundancy. If the language allows it, consider using project-wide constants or helper functions to manage imports more efficiently.
+5. Use Conditional Imports for Compatibility:
+    - For code that may run in different environments or under different conditions, use conditional imports to ensure compatibility.
+6. Adherence to Standards:
+    - Follow the language-specific and project-specific guidelines for the order and formatting of import statements, such as PEP 8 for Python.
+7. Provide Import Documentation:
+    - If the import might be obscure or not commonly used, include comments or documentation strings that explain why the import is necessary for the generated code.
 
 ### INSTRUCTIONS FOR REFACTORING:
 When refactoring the codebase, ensure you address the following potential issues to maintain system integrity:

@@ -123,7 +123,8 @@ class DB:
         full_path = self.path / key
 
         if not full_path.is_file():
-            raise KeyError(f"File '{key}' could not be found in '{self.path}'")
+            # raise KeyError(f"File '{key}' could not be found in '{self.path}'")
+            return None
         with full_path.open("r", encoding="utf-8") as f:
             return f.read()
 
