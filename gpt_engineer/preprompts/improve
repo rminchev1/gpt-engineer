@@ -22,7 +22,7 @@ some/dir/example.py
 
 Remember, you can use multiple *edit blocks* per file.
 
-Here is an example reponse:
+Here is an example response:
 ---
 PLANNING:
 We need to change ... because ..., therefore I will add the line `a=a+1` to the function `add_one`.
@@ -32,34 +32,179 @@ OUTPUT:
 ```python
 some/dir/example_1.py
 <<<<<<< HEAD
-    def mul(a,b)
+    import math
+    def calculate_circle_area(radius):
+        return math.pi * radius * radius
 =======
-    def add(a,b):
->>>>>>> updated
-```
-
-```python
-some/dir/example_1.py
-<<<<<<< HEAD
-    def add_one(a,b):
-        a = a+2
-=======
-    def add_one(a,b):
-        a = a+1
+    from math import pi
+    def calculate_circle_area(radius):
+        return pi * radius * radius  # Updated import statement
 >>>>>>> updated
 ```
 
 ```python
 some/dir/example_2.py
 <<<<<<< HEAD
-    class DBS:
-        db = 'aaa'
+    def summarize_data(data):
+        total = sum(data)
+        count = len(data)
+        average = total / count
+        return total, average
 =======
-    class DBS:
-        db = 'bbb'
+    def summarize_data(data):
+        total = sum(data)
+        count = len(data)
+        average = total / count
+        max_value = max(data)  # Added calculation of max value
+        return total, average, max_value
 >>>>>>> updated
 ```
----
+
+```python
+some/dir/example_3.py
+<<<<<<< HEAD
+    def process_text(text):
+        words = text.split()
+        unique_words = set(words)
+        word_count = len(words)
+        return unique_words, word_count
+=======
+    def process_text(text):
+        words = text.lower().split()  # Convert text to lowercase before splitting
+        unique_words = set(words)
+        word_count = len(words)
+        longest_word = max(words, key=len)  # Find the longest word
+        return unique_words, word_count, longest_word
+>>>>>>> updated
+```
+
+
+```python
+some/dir/example_4.py
+<<<<<<< HEAD
+    def analyze_numbers(numbers):
+        evens = [num for num in numbers if num % 2 == 0]
+        odds = [num for num in numbers if num % 2 != 0]
+        return evens, odds
+=======
+    def analyze_numbers(numbers):
+        evens = [num for num in numbers if num % 2 == 0]
+        evens_sum = sum(evens)  # Calculate the sum of even numbers
+        odds = [num for num in numbers if num % 2 != 0]
+        odds_count = len(odds)  # Count the number of odd numbers
+        return evens, evens_sum, odds, odds_count
+>>>>>>> updated
+```
+
+
+```python
+some/dir/example_5.py
+<<<<<<< HEAD
+    numbers = [1, 2, 3, 4, 5]
+    squares = [num * num for num in numbers]
+    print(f"Squares: {squares}")
+=======
+    numbers = [1, 2, 3, 4, 5, 6]  # Added an additional number to the list
+    squares = [num * num for num in numbers if num % 2 == 0]  # Calculate squares of even numbers only
+    print(f"Even Squares: {squares}")
+>>>>>>> updated
+```
+
+
+```python
+some/dir/example_7.py
+<<<<<<< HEAD
+    if user_is_admin:
+        print("Access granted to admin features.")
+    else:
+        print("Access restricted.")
+=======
+    if user_is_admin or user_is_moderator:  # Added condition for moderators
+        print("Access granted to advanced features.")
+    else:
+        print("Regular user access.")
+>>>>>>> updated
+```
+
+
+```python
+some/dir/example_8.py
+<<<<<<< HEAD
+    user_data = {"name": "John", "age": 30, "role": "user"}
+    print(f"User Information: {user_data}")
+=======
+    user_data = {"name": "John", "age": 30, "role": "user", "status": "active"}  # Added status key-value pair
+    print(f"Updated User Information: {user_data}")
+>>>>>>> updated
+```
+
+
+```css
+some/dir/style.css
+<<<<<<< HEAD
+    .button {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+    }
+=======
+    .button {
+        background-color: green;  /* Changed button color to green */
+        color: white;
+        padding: 12px 24px;  /* Increased padding for a larger button */
+        text-align: center;
+        border-radius: 5px;  /* Added border radius for rounded corners */
+    }
+>>>>>>> updated
+```
+
+
+```javascript
+some/dir/script.js
+<<<<<<< HEAD
+    function toggleVisibility(elementId) {
+        var element = document.getElementById(elementId);
+        if (element.style.display === 'none') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+=======
+    function toggleVisibility(elementId) {
+        var element = document.getElementById(elementId);
+        if (element.style.display === 'none') {
+            element.style.display = 'block';
+            console.log('Element is now visible.');  /* Added console log for visibility */
+        } else {
+            element.style.display = 'none';
+            console.log('Element is now hidden.');  /* Added console log for hiding */
+        }
+    }
+>>>>>>> updated
+```
+
+### CRITICAL INSTRUCTION REGARDING *edit block*:
+A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
+So edit blocks must be precise and unambiguous!
+
+`Ensure` that each edit block is enclosed within triple backticks ```... ``` to denote code blocks, and use the appropriate language identifier. Additionally, separate each code block with a newline character \n for clear distinction.
+
+Format all code changes strictly within the designated edit block boundaries, marked by triple backticks ``` and the appropriate language identifier. Ensure that the original code segment and your modifications are contained within the *<<<<<<< HEAD and >>>>>>> updated* markers. Any code outside these markers should remain unaltered. This format is crucial to maintain the clarity and integrity of the code changes.
+
+The `HEAD` section MUST be an *exact set of sequential lines* provided! This is very `important`. Otherwise the parser won't work.
+NEVER SKIP LINES in the `HEAD` section!
+NEVER ELIDE LINES AND REPLACE THEM WITH A COMMENT!
+NEVER OMIT ANY WHITESPACE in the `HEAD` section!
+NEVER WRITE CODE OUSIDE OF THE EDIT BLOCK 
+
+Don't write comments in the `HEAD` section like this, or similar
+example:
+    # ... (other code remains unchanged)
+
+
+REMEMBER, Don't create *edit block* unless there's need of file update or creation of new one
 
 ### CRITICAL INSTRUCTION REGARDING FILE NAMES:
 - Always return the file name in the EXACT format as it was provided to you. Some file names will INCLUDE a directory path, the file name, and its extension. In other cases, you'll only receive the file name and extension without any directory path.
@@ -75,18 +220,6 @@ Here are some illustrative examples:
 - YOUR OUTPUT: example_2.py
 
 
-### CRITICAL INSTRUCTION REGARDING *edit block*:
-A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
-So edit blocks must be precise and unambiguous!
-
-Every *edit block* must be fenced with ```...``` with the correct code language.
-
-The `HEAD` section MUST be an *exact set of sequential lines* provided! This is very important. Otherwise the parser won't work.
-NEVER SKIP LINES in the `HEAD` section!
-NEVER ELIDE LINES AND REPLACE THEM WITH A COMMENT!
-NEVER OMIT ANY WHITESPACE in the `HEAD` section!
-
-Edits to different parts of a file each need their own *edit block*.
 
 ### INSTRUCTIONS ABOUT NEW FILES
 Specify the New File Path:

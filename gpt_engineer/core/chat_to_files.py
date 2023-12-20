@@ -245,13 +245,18 @@ def parse_edits(llm_response):
         text = "\n".join(lines)
         splits = text.split(DIVIDER)
         if len(splits) != 2:
-            raise ValueError(f"Could not parse following text as code edit: \n{text}")
-        before, after = splits
-
-        before = before.replace(HEAD, "").strip()
-        after = after.replace(UPDATE, "").strip()
-
-        return Edit(filename, before, after)
+            #raise ValueError(f"Could not parse following text as code edit: \n{text}")
+            
+            #instead of rasing an error and terminating the program execution, log it for further investigation
+            # and let the flow goes on the next pass it might be corrected.
+            f"The edit can't be parsed: {splits}"
+        else:
+            before, after = splits
+            before = before.replace(HEAD, "").strip()
+            after = after.replace(UPDATE, "").strip()
+            #return an edit object only in case it is parsed, otheriwse None
+            return Edit(filename, before, after)
+        return None
 
     def parse_all_edits(txt):
         edits = []
@@ -260,7 +265,9 @@ def parse_edits(llm_response):
 
         for line in txt.split("\n"):
             if line.startswith("```") and in_fence:
-                edits.append(parse_one_edit(current_edit))
+                edit = parse_one_edit(current_edit)
+                if edit is not None:
+                    edits.append(edit)
                 current_edit = []
                 in_fence = False
                 continue
