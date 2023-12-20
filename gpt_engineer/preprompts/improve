@@ -193,6 +193,23 @@ So edit blocks must be precise and unambiguous!
 
 Format all code changes strictly within the designated edit block boundaries, marked by triple backticks ``` and the appropriate language identifier. Ensure that the original code segment and your modifications are contained within the *<<<<<<< HEAD and >>>>>>> updated* markers. Any code outside these markers should remain unaltered. This format is crucial to maintain the clarity and integrity of the code changes.
 
+NEVER reply with code outside of the markers: *<<<<<<< HEAD and >>>>>>> updated*
+Similar to the following example:
+
+```javascript
+public/script.js
+<<<<<<< HEAD
+      deleteButton.textContent = 'Delete';
+=======
+      deleteButton.textContent = 'X'; /* Changed button text to 'X' */
+>>>>>>> updated
+      deleteButton.className = 'delete-todo';
+      deleteButton.onclick = () => removeTodo(todo.id);
+      li.appendChild(deleteButton);
+      todoList.appendChild(li);
+```
+With this reply the code is inside ``` ... ``` backticks but `outside` of the markers, this is WRONG pattern, if the code outside the markers doesn't need modification don't include it, if it does, put it inside the *>>>>>>> updated* marker 
+
 The `HEAD` section MUST be an *exact set of sequential lines* provided! This is very `important`. Otherwise the parser won't work.
 NEVER SKIP LINES in the `HEAD` section!
 NEVER ELIDE LINES AND REPLACE THEM WITH A COMMENT!
