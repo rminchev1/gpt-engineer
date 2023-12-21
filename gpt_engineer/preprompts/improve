@@ -20,6 +20,7 @@ some/dir/example.py
 >>>>>>> updated
 ```
 
+
 Remember, you can use multiple *edit blocks* per file.
 
 Here is an example response:
@@ -189,7 +190,17 @@ some/dir/script.js
 A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
 So edit blocks must be precise and unambiguous!
 
-`Ensure` that each edit block is enclosed within triple backticks ```... ``` to denote code blocks, and use the appropriate language identifier. Additionally, separate each code block with a newline character \n for clear distinction.
+Enclose each distinct *edit block* within its own set of triple backticks ``` to create separate code blocks. Precede each block with the corresponding language identifier. It is essential that every code block, even if they refer to the same file, is surrounded by its own triple backticks to maintain clear separation between code segments. For example:
+Example:
+```java
+    path/file1.ext
+    *code block*
+```
+
+```java
+    path/file1.ext
+    *code block*
+```
 
 Format all code changes strictly within the designated edit block boundaries, marked by triple backticks ``` and the appropriate language identifier. Ensure that the original code segment and your modifications are contained within the *<<<<<<< HEAD and >>>>>>> updated* markers. Any code outside these markers should remain unaltered. This format is crucial to maintain the clarity and integrity of the code changes.
 
@@ -208,7 +219,7 @@ public/script.js
       li.appendChild(deleteButton);
       todoList.appendChild(li);
 ```
-With this reply the code is inside ``` ... ``` backticks but `outside` of the markers, this is WRONG pattern, if the code outside the markers doesn't need modification don't include it, if it does, put it inside the *>>>>>>> updated* marker 
+With this reply the code is inside ``` ... ``` backticks but `outside` of the markers, this is `WRONG` pattern, if the code outside the markers doesn't need modification don't include it, if it does, put it inside the *>>>>>>> updated* marker 
 
 The `HEAD` section MUST be an *exact set of sequential lines* provided! This is very `important`. Otherwise the parser won't work.
 NEVER SKIP LINES in the `HEAD` section!
@@ -237,7 +248,6 @@ Here are some illustrative examples:
 - YOUR OUTPUT: example_2.py
 
 
-
 ### INSTRUCTIONS ABOUT NEW FILES
 Specify the New File Path:
 - Clearly state the intended directory and file name for the new file,
@@ -248,14 +258,19 @@ Include New Content in the Updated Section:
 - Place the entire contents of the new file within the updated section, formatted properly according to the language's syntax and the project's coding standards.
 
 #### Format for New File Creation:
+
+```python
 Path/to/newfile.extension
 <<<<<<< HEAD
 =======
 # New file content starts here
 # Include all necessary imports, class definitions, methods, and any other code required.
 >>>>>>> updated
+```
 
 #### Example:
+
+```python
 database/models.py
 <<<<<<< HEAD
 =======
@@ -273,50 +288,5 @@ class User(Base):
 
 # Remember to include all necessary classes and definitions.
 >>>>>>> updated
+```
 
-
-### INSTRUCTIONS AND RULES ABOUT IMPORTS:
-1. Analyze Dependencies:
-    - Before generating the code, analyze the functionality and determine which libraries or modules the code will depend on.
-2. Explicit Import Statements:
-    - Always include explicit import statements for any libraries, modules, or specific functions/classes used in the code. Avoid using wildcard imports to maintain clarity and avoid namespace pollution.
-3. Match the Context:
-    - If the code is to be added to an existing codebase, ensure the imports match the project's existing import conventions and structure. If necessary, review the project's other files to determine commonly used libraries and their import patterns.
-4. Minimize Import Redundancy:
-    - If the generated code is for a new file in an existing project, check for existing imports in other parts of the project to avoid redundancy. If the language allows it, consider using project-wide constants or helper functions to manage imports more efficiently.
-5. Use Conditional Imports for Compatibility:
-    - For code that may run in different environments or under different conditions, use conditional imports to ensure compatibility.
-6. Adherence to Standards:
-    - Follow the language-specific and project-specific guidelines for the order and formatting of import statements, such as PEP 8 for Python.
-7. Provide Import Documentation:
-    - If the import might be obscure or not commonly used, include comments or documentation strings that explain why the import is necessary for the generated code.
-
-### INSTRUCTIONS FOR REFACTORING:
-When refactoring the codebase, ensure you address the following potential issues to maintain system integrity:
-
-1. Class/Type Changes:
-    - Check if any method or function now returns a different type or class.
-    - Ensure all consumers are updated to handle potential new return types.
-2. Method/Function Removal:
-    - Before removing methods or functions, verify they aren't called elsewhere in the codebase.
-3. Database Alterations:
-    - If changing the database schema or queries, ensure that existing data and functions relying on them remain unaffected.
-    - Update all logic and queries if a column is renamed or removed.
-4. API Endpoint Modifications:
-    - If routes or returned data from an API are refactored, validate that all dependent clients or services function as intended.
-5. Deprecation Concerns:
-    - Avoid utilizing deprecated or obsolete methods or libraries.
-    - Confirm that new features adopted from languages or frameworks are not on their deprecation path.
-6. Concurrency Considerations:
-    - If changing methods involving concurrency, assess the potential for introducing race conditions or deadlocks.
-7. Error Handling Alterations:
-    - If refactoring involves changing how errors are handled, ensure all callers can handle new error methods or exceptions.
-8. Configuration Adjustments:
-    - When making configuration changes, ensure no part of the code is broken due to the alteration of its values or locations.
-9. Logic Changes:
-    - Scrutinize any change in logic to guarantee the intended behavior of the application remains consistent.
-10. Static Resources & Asset Paths:
-    - If paths to static resources are altered, validate all references are updated to ensure UI elements load correctly.
-11. Library & Framework Updates:
-    - When updating libraries or frameworks, check for deprecated methods or behaviors and adjust the codebase accordingly.
-Ensure each of these points is diligently checked and addressed during the refactoring process to prevent unintended disruptions or issues.
