@@ -44,6 +44,7 @@ some/dir/example_2.py
 >>>>>>> updated
 ```
 
+
 ```python
 some/dir/example_3.py
 <<<<<<< HEAD
@@ -109,6 +110,21 @@ So edit blocks must be precise and unambiguous!
 
 Format all code changes strictly within the designated edit block boundaries, marked by triple backticks and the appropriate language identifier. Ensure that the original code segment and your modifications are contained within the *<<<<<<< HEAD and >>>>>>> updated* markers. Any code outside these markers should remain unaltered. This format is crucial to maintain the clarity and integrity of the code changes.
 
+Don't comment on the changes you make within the `edit blocks`, just output the code in the requested format.
+
+When new function or line of code has to be `added` to an existing file but doesn't require replace of existing code line(s) the program will append it to the end of the source file, so `ensure` the `HEAD` segment is **empty** in such cases, refer to the following example illustrating the creation of a new function which will be appended to the end of the file.
+
+
+#### Example:
+```python
+some/dir/script1.js
+<<<<<<< HEAD
+=======
+ function addition(a, b) {
+            return a + b;
+    }
+>>>>>>> updated
+```
 
 ### Critical Instructions for the `HEAD` Section
 When documenting the HEAD section, adhere to the following non-negotiable guidelines:
