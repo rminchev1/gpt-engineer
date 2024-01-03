@@ -41,6 +41,8 @@ from gpt_engineer.cli.learning import collect_consent
 
 app = typer.Typer()  # creates a CLI app
 
+agent_name = "Dev Agent"
+
 
 def load_env_if_needed():
     if os.getenv("OPENAI_API_KEY") is None:
@@ -74,6 +76,21 @@ def preprompts_path(use_custom_preprompts: bool, input_path: Path = None) -> Pat
         if not (custom_preprompts_path / file.name).exists():
             (custom_preprompts_path / file.name).write_text(file.read_text())
     return custom_preprompts_path
+
+
+def get_multiline_input():
+    print(
+        """
+          Dev Agent: Enter/paste your content. Press Enter on an empty line to finish.
+          """
+    )
+    contents = []
+    while True:
+        line = input()
+        if line == "":  # Terminate loop if Enter is pressed on an empty line
+            break
+        contents.append(line)
+    return "\n".join(contents)
 
 
 @app.command()
@@ -113,68 +130,86 @@ def main(
 ):
     logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
 
-    if lite_mode:
-        assert not improve_mode, "Lite mode cannot improve code"
-        if steps_config == StepsConfig.DEFAULT:
-            steps_config = StepsConfig.LITE
-
-    if improve_mode:
-        assert (
-            steps_config == StepsConfig.DEFAULT
-        ), "Improve mode not compatible with other step configs"
-        steps_config = StepsConfig.IMPROVE_CODE
-
-    load_env_if_needed()
-
-    ai = AI(
-        model_name=model,
-        temperature=temperature,
-        azure_endpoint=azure_endpoint,
+    command_input = input(
+        f"{agent_name} | improve mode: {improve_mode} | -i for improve mode, Enter for continue, quite for exit: "
     )
 
-    project_path = os.path.abspath(
-        project_path
-    )  # resolve the string to a valid path (eg "a/b/../c" to "a/c")
-    path = Path(project_path).absolute()
-    print("Running gpt-engineer in", path, "\n")
+    while True:
+        # steps_config == StepsConfig.DEFAULT
+        if command_input == "quit":
+            break
 
-    workspace_path = path
-    input_path = path
+        if command_input == "-i":
+            improve_mode = True
 
-    project_metadata_path = path / ".gpteng"
-    memory_path = project_metadata_path / "memory"
-    archive_path = project_metadata_path / "archive"
+        user_prompt = (
+            get_multiline_input()
+        )  # input(f" {agent_name} | improve mode: {improve_mode} | Prompt: ")
 
-    dbs = DBs(
-        memory=DB(memory_path),
-        logs=DB(memory_path / "logs"),
-        input=DB(input_path),
-        workspace=DB(workspace_path),
-        preprompts=DB(preprompts_path(use_custom_preprompts, input_path)),
-        archive=DB(archive_path),
-        project_metadata=DB(project_metadata_path),
-    )
+        if lite_mode:
+            assert not improve_mode, "Lite mode cannot improve code"
+            if steps_config == StepsConfig.DEFAULT:
+                steps_config = StepsConfig.LITE
 
-    if steps_config not in [
-        StepsConfig.EXECUTE_ONLY,
-        StepsConfig.USE_FEEDBACK,
-        StepsConfig.EVALUATE,
-        StepsConfig.IMPROVE_CODE,
-    ]:
-        archive(dbs)
-        load_prompt(dbs)
+        if improve_mode:
+            # assert (
+            #     steps_config == StepsConfig.DEFAULT
+            # ), "Improve mode not compatible with other step configs"
+            steps_config = StepsConfig.IMPROVE_CODE
 
-    steps = STEPS[steps_config]
-    for step in steps:
-        messages = step(ai, dbs)
-        dbs.logs[step.__name__] = AI.serialize_messages(messages)
+        load_env_if_needed()
 
-    # print("Total api cost: $ ", ai.usage_cost())
+        ai = AI(
+            model_name=model,
+            temperature=temperature,
+            azure_endpoint=azure_endpoint,
+        )
 
-    if collect_consent():
-        collect_learnings(model, temperature, steps, dbs)
+        project_path = os.path.abspath(
+            project_path
+        )  # resolve the string to a valid path (eg "a/b/../c" to "a/c")
+        path = Path(project_path).absolute()
+        print("Running gpt-engineer in", path, "\n")
 
-    dbs.logs["token_usage"] = ai.format_token_usage_log()
+        workspace_path = path
+        input_path = path
+
+        project_metadata_path = path / ".gpteng"
+        memory_path = project_metadata_path / "memory"
+        archive_path = project_metadata_path / "archive"
+
+        dbs = DBs(
+            memory=DB(memory_path),
+            logs=DB(memory_path / "logs"),
+            input=DB(input_path),
+            workspace=DB(workspace_path),
+            preprompts=DB(preprompts_path(use_custom_preprompts, input_path)),
+            archive=DB(archive_path),
+            project_metadata=DB(project_metadata_path),
+        )
+
+        dbs.input["prompt"] = user_prompt
+
+        if steps_config not in [
+            StepsConfig.EXECUTE_ONLY,
+            StepsConfig.USE_FEEDBACK,
+            StepsConfig.EVALUATE,
+            StepsConfig.IMPROVE_CODE,
+        ]:
+            archive(dbs)
+            load_prompt(dbs)
+
+        steps = STEPS[steps_config]
+        for step in steps:
+            messages = step(ai, dbs)
+            dbs.logs[step.__name__] = AI.serialize_messages(messages)
+
+        # print("Total api cost: $ ", ai.usage_cost())
+
+        # if collect_consent():
+        #     collect_learnings(model, temperature, steps, dbs)
+
+        dbs.logs["token_usage"] = ai.format_token_usage_log()
 
 
 if __name__ == "__main__":

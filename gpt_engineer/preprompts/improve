@@ -21,7 +21,7 @@ some/dir/example_1.py
 =======
     from math import pi
     def calculate_circle_area(radius):
-        return pi * radius * radius  # Updated import statement
+        return pi * radius * radius
 >>>>>>> updated
 ```
 
@@ -47,78 +47,11 @@ some/dir/example_2.py
 ```python
 some/dir/example_3.py
 <<<<<<< HEAD
-    def process_text(text):
         words = text.split()
         unique_words = set(words)
-        word_count = len(words)
-        return unique_words, word_count
 =======
-    def process_text(text):
-        words = text.lower().split()
         unique_words = set(words)
         word_count = len(words)
-        longest_word = max(words, key=len)
-        return unique_words, word_count, longest_word
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_4.py
-<<<<<<< HEAD
-    def analyze_numbers(numbers):
-        evens = [num for num in numbers if num % 2 == 0]
-        odds = [num for num in numbers if num % 2 != 0]
-        return evens, odds
-=======
-    def analyze_numbers(numbers):
-        evens = [num for num in numbers if num % 2 == 0]
-        evens_sum = sum(evens)
-        odds = [num for num in numbers if num % 2 != 0]
-        odds_count = len(odds)
-        return evens, evens_sum, odds, odds_count
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_5.py
-<<<<<<< HEAD
-    numbers = [1, 2, 3, 4, 5]
-    squares = [num * num for num in numbers]
-    print(f"Squares: {squares}")
-=======
-    numbers = [1, 2, 3, 4, 5, 6]
-    squares = [num * num for num in numbers if num % 2 == 0]
-    print(f"Even Squares: {squares}")
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_7.py
-<<<<<<< HEAD
-    if user_is_admin:
-        print("Access granted to admin features.")
-    else:
-        print("Access restricted.")
-=======
-    if user_is_admin or user_is_moderator:
-        print("Access granted to advanced features.")
-    else:
-        print("Regular user access.")
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_8.py
-<<<<<<< HEAD
-    user_data = {"name": "John", "age": 30, "role": "user"}
-    print(f"User Information: {user_data}")
-=======
-    user_data = {"name": "John", "age": 30, "role": "user", "status": "active"}
-    print(f"Updated User Information: {user_data}")
 >>>>>>> updated
 ```
 
@@ -170,35 +103,19 @@ some/dir/script.js
 ```
 
 
-
 ### CRITICAL Instructions about **edit block**:
 A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
 So edit blocks must be precise and unambiguous!
 
 Format all code changes strictly within the designated edit block boundaries, marked by triple backticks and the appropriate language identifier. Ensure that the original code segment and your modifications are contained within the *<<<<<<< HEAD and >>>>>>> updated* markers. Any code outside these markers should remain unaltered. This format is crucial to maintain the clarity and integrity of the code changes.
 
-NEVER reply with code outside of the markers: *<<<<<<< HEAD and >>>>>>> updated*
-Similar to the following example:
-
-```javascript
-public/script.js
-<<<<<<< HEAD
-      deleteButton.textContent = 'Delete';
-=======
-      deleteButton.textContent = 'X';
->>>>>>> updated
-      deleteButton.className = 'delete-todo';
-      deleteButton.onclick = () => removeTodo(todo.id);
-      li.appendChild(deleteButton);
-      todoList.appendChild(li);
-```
 
 ### Critical Instructions for the `HEAD` Section
 When documenting the HEAD section, adhere to the following non-negotiable guidelines:
 
+- **Whitespace Integrity**: Preserve all leading whitespace. These spaces are essential for the correct interpretation of code structure and must remain intact.
 - **Exactness**: Provide a precise and unaltered sequence of lines as they appear. This precision is crucial for the parser's functionality.
 - **Line Continuity**: Do not exclude or skip any lines. Every line is integral, including those that may seem inconsequential.
-- **Whitespace Integrity**: Preserve all leading whitespace. These spaces are essential for the correct interpretation of code structure and must remain intact.
 - **Edit Block Confinement**: Write code exclusively within the confines of edit blocks. Any code outside these blocks disrupts the parsing process.
 - **Line Elision Prohibition**: Avoid summarizing or condensing lines with comments. The parser requires full, unabbreviated lines to operate accurately.
 - **Edit Block Creation**: Only generate edit blocks for necessary file updates or when creating new files. Unwarranted edit blocks can cause processing errors.
@@ -206,17 +123,17 @@ When documenting the HEAD section, adhere to the following non-negotiable guidel
 Compliance with these rules is **imperative** to ensure accurate parsing and prevent operational failures.
 
 `Remember`, you can use multiple *edit blocks* per file.
-Enclose each distinct *edit block* within its own set of triple backticks ``` *code block* ``` to create separate code blocks. Precede each block with the corresponding language identifier. It is essential that every code block, even if they refer to the **same file**, **is surrounded by its own triple backticks** to maintain clear separation between code segments. For example:
+Enclose each distinct *edit block* within its own set of triple backticks ``` *edit block* ``` to create separate edit blocks. Precede each block with the corresponding language identifier. It is essential that every edit block, even if they refer to the **same file**, **is surrounded by its own triple backticks** to maintain clear separation between code segments. For example:
 Example:
 
 ```java
     path/file1.ext
-    *code block*
+    *edit block*
 ```
 
 ```java
     path/file1.ext
-    *code block*
+    *edit block*
 ```
 
 

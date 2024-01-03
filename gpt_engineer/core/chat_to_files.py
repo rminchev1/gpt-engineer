@@ -233,6 +233,7 @@ class Edit:
     filename: str
     before: str
     after: str
+    filename: str
 
 
 def parse_edits(llm_response):
@@ -244,17 +245,13 @@ def parse_edits(llm_response):
         filename = lines.pop(0)
         text = "\n".join(lines)
         splits = text.split(DIVIDER)
+
         if len(splits) != 2:
-            #raise ValueError(f"Could not parse following text as code edit: \n{text}")
-            
-            #instead of rasing an error and terminating the program execution, log it for further investigation
-            # and let the flow goes on the next pass it might be corrected.
-            f"The edit can't be parsed: {splits}"
+            print(f"The edit can't be parsed: {splits}")
         else:
             before, after = splits
             before = before.replace(HEAD, "").strip()
             after = after.replace(UPDATE, "").strip()
-            #return an edit object only in case it is parsed, otheriwse None
             return Edit(filename, before, after)
         return None
 
@@ -262,9 +259,11 @@ def parse_edits(llm_response):
         edits = []
         current_edit = []
         in_fence = False
+        current_filename = None
 
         for line in txt.split("\n"):
             if line.startswith("```") and in_fence:
+                # Parse the current edit block
                 edit = parse_one_edit(current_edit)
                 if edit is not None:
                     edits.append(edit)
@@ -276,8 +275,20 @@ def parse_edits(llm_response):
                 continue
 
             if in_fence:
+                if not current_edit and not line.startswith("```"):
+                    # The first line of the code block that is not backticks should be the path
+                    current_filename = line
                 current_edit.append(line)
 
+            # For new file blocks, reset current_filename
+            if not in_fence and line and not line.startswith("```"):
+                current_filename = line
+
+        # Check if there's an unterminated code block at the end
+        if current_edit:
+            edit = parse_one_edit(current_edit)
+            if edit is not None:
+                edits.append(edit)
         return edits
 
     return parse_all_edits(llm_response)
@@ -287,6 +298,7 @@ def apply_edits(edits: List[Edit], workspace: DB):
     for edit in edits:
         filename = edit.filename
         file_content = workspace.get(filename)
+
         if edit.before == "" and file_content is not None:
             # append edit block to the end of the file, instead of overwriting it
             workspace[filename] = file_content + edit.after  # append to a file
