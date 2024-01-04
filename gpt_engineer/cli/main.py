@@ -79,7 +79,7 @@ def preprompts_path(use_custom_preprompts: bool, input_path: Path = None) -> Pat
 
 
 def get_multiline_input():
-    print("Dev Agent: Enter/paste your content. Press Enter on an empty line to finish.")
+    print("\nDev Agent: Enter/paste your content. Press Enter on an empty line to finish.")
     contents = []
     while True:
         line = input()
