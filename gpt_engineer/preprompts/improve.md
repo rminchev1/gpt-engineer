@@ -177,7 +177,7 @@ src/todoController.js
 ### Multiple `edit blocks` per source file
 
 You can use multiple *edit blocks* per file.
-Enclose each distinct *edit block* within its own set of triple backticks ``` *edit block* ``` to create separate edit blocks. Precede each block with the corresponding language identifier. It is essential that every edit block, even if they refer to the **same file**, **is surrounded by its own triple backticks** to maintain clear separation between code segments. 
+Enclose each distinct *edit block* within its own set of triple backticks ``` *edit block* ``` to create separate edit blocks. Precede each block with the corresponding language identifier. It is essential that every edit block, even if they refer to the **same file**, **is surrounded by its own triple backticks** to maintain clear separation between code segments.
 
 #### Example:
 ```java
@@ -200,7 +200,7 @@ When documenting the HEAD section, adhere to the following non-negotiable guidel
 - `Edit Block Confinement`: Write code exclusively within the confines of `edit blocks`. Any code outside these blocks disrupts the parsing process.
 - `Line Elision Prohibition`: Avoid summarizing or condensing lines with comments. The parser requires full, unabbreviated lines to operate accurately.
 - `Edit Block Creation`: Only generate edit blocks for necessary file updates or when creating new files. Unwarranted edit blocks can cause processing errors.
-- 
+-
 Compliance with these rules is **imperative** to ensure accurate parsing and prevent operational failures.
 
 

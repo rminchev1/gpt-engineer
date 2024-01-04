@@ -41,7 +41,7 @@ from gpt_engineer.cli.learning import collect_consent
 
 app = typer.Typer()  # creates a CLI app
 
-agent_name = "Dev Agent"
+agent_name = "Dev Agent: "
 
 
 def load_env_if_needed():
@@ -79,11 +79,7 @@ def preprompts_path(use_custom_preprompts: bool, input_path: Path = None) -> Pat
 
 
 def get_multiline_input():
-    print(
-        """
-          Dev Agent: Enter/paste your content. Press Enter on an empty line to finish.
-          """
-    )
+    print("Dev Agent: Enter/paste your content. Press Enter on an empty line to finish.")
     contents = []
     while True:
         line = input()
