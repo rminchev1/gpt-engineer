@@ -165,14 +165,13 @@ src/todoController.js
     const sql = 'INSERT INTO todos (text, completed, user_id) VALUES (?, ?, ?)';
     const params = [text, false, req.user.id];
 >>>>>>> updated
-    db.run(sql, params, function (err) { // the faulty block begins here 
+    db.run(sql, params, function (err) {
       if (err) {
         res.status(400).json({ error: err.message });
         return;
       }
       res.status(201).json({ id: this.lastID, text, completed: false });
-    }); // the faulty block ends here  
-     
+    });
 ```
 
 ### Multiple `edit blocks` per source file
@@ -201,7 +200,7 @@ When documenting the HEAD section, adhere to the following non-negotiable guidel
 - `Edit Block Confinement`: Write code exclusively within the confines of `edit blocks`. Any code outside these blocks disrupts the parsing process.
 - `Line Elision Prohibition`: Avoid summarizing or condensing lines with comments. The parser requires full, unabbreviated lines to operate accurately.
 - `Edit Block Creation`: Only generate edit blocks for necessary file updates or when creating new files. Unwarranted edit blocks can cause processing errors.
-  
+- 
 Compliance with these rules is **imperative** to ensure accurate parsing and prevent operational failures.
 
 
