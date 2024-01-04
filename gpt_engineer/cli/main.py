@@ -79,7 +79,9 @@ def preprompts_path(use_custom_preprompts: bool, input_path: Path = None) -> Pat
 
 
 def get_multiline_input():
-    print("\nDev Agent: Enter/paste your content. Press Enter on an empty line to finish.")
+    print(
+        "\nDev Agent: Enter/paste your content. Press Enter on an empty line to finish."
+    )
     contents = []
     while True:
         line = input()
@@ -92,6 +94,7 @@ def get_multiline_input():
 @app.command()
 def main(
     project_path: str = typer.Argument("projects/example", help="path"),
+    user_prompt: str = typer.Argument("Say hello ;)!", help="User prompt"),
     model: str = typer.Argument("gpt-4-1106-preview", help="model id string"),
     temperature: float = 0,
     steps_config: StepsConfig = typer.Option(
@@ -102,6 +105,12 @@ def main(
         "--improve",
         "-i",
         help="Improve code from existing project.",
+    ),
+    interactive_mode: bool = typer.Option(
+        False,
+        "--interactive",
+        "-in",
+        help="Improve code in interactive mode",
     ),
     lite_mode: bool = typer.Option(
         False,
@@ -126,22 +135,87 @@ def main(
 ):
     logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
 
-    command_input = input(
-        f"{agent_name} | improve mode: {improve_mode} | -i for improve mode, Enter for continue, quite for exit: "
-    )
+    # command_input = input(
+    #     f"{agent_name} | improve mode: {improve_mode} | -i for improve mode, Enter for continue, quite for exit: "
+    # )
 
-    while True:
-        # steps_config == StepsConfig.DEFAULT
-        if command_input == "quit":
-            break
-
-        if command_input == "-i":
+    if interactive_mode is True:
+        while True:            
             improve_mode = True
 
-        user_prompt = (
-            get_multiline_input()
-        )  # input(f" {agent_name} | improve mode: {improve_mode} | Prompt: ")
+            user_prompt = (
+                get_multiline_input()
+            )  # input(f" {agent_name} | improve mode: {improve_mode} | Prompt: ")
 
+            if user_prompt == "quit":
+                break
+
+            if lite_mode:
+                assert not improve_mode, "Lite mode cannot improve code"
+                if steps_config == StepsConfig.DEFAULT:
+                    steps_config = StepsConfig.LITE
+
+            if improve_mode:
+                # assert (
+                #     steps_config == StepsConfig.DEFAULT
+                # ), "Improve mode not compatible with other step configs"
+                steps_config = StepsConfig.IMPROVE_CODE
+
+            load_env_if_needed()
+
+            ai = AI(
+                model_name=model,
+                temperature=temperature,
+                azure_endpoint=azure_endpoint,
+            )
+
+            project_path = os.path.abspath(
+                project_path
+            )  # resolve the string to a valid path (eg "a/b/../c" to "a/c")
+            path = Path(project_path).absolute()
+            print("Running gpt-engineer in", path, "\n")
+
+            workspace_path = path
+            input_path = path
+
+            project_metadata_path = path / ".gpteng"
+            memory_path = project_metadata_path / "memory"
+            archive_path = project_metadata_path / "archive"
+
+            dbs = DBs(
+                memory=DB(memory_path),
+                logs=DB(memory_path / "logs"),
+                input=DB(input_path),
+                workspace=DB(workspace_path),
+                preprompts=DB(preprompts_path(use_custom_preprompts, input_path)),
+                archive=DB(archive_path),
+                project_metadata=DB(project_metadata_path),
+            )
+
+            dbs.input["prompt"] = user_prompt
+
+            if steps_config not in [
+                StepsConfig.EXECUTE_ONLY,
+                StepsConfig.USE_FEEDBACK,
+                StepsConfig.EVALUATE,
+                StepsConfig.IMPROVE_CODE,
+            ]:
+                archive(dbs)
+                load_prompt(dbs)
+
+            steps = STEPS[steps_config]
+            for step in steps:
+                messages = step(ai, dbs)
+                dbs.logs[step.__name__] = AI.serialize_messages(messages)
+
+            # print("Total api cost: $ ", ai.usage_cost())
+
+            # if collect_consent():
+            #     collect_learnings(model, temperature, steps, dbs)
+
+            dbs.logs["token_usage"] = ai.format_token_usage_log()
+
+    if user_prompt is not None:
         if lite_mode:
             assert not improve_mode, "Lite mode cannot improve code"
             if steps_config == StepsConfig.DEFAULT:
@@ -198,15 +272,7 @@ def main(
         steps = STEPS[steps_config]
         for step in steps:
             messages = step(ai, dbs)
-            dbs.logs[step.__name__] = AI.serialize_messages(messages)
-
-        # print("Total api cost: $ ", ai.usage_cost())
-
-        # if collect_consent():
-        #     collect_learnings(model, temperature, steps, dbs)
-
-        dbs.logs["token_usage"] = ai.format_token_usage_log()
-
+            dbs.logs[step.__name__] = AI.serialize_messages(messages)    
 
 if __name__ == "__main__":
     app()

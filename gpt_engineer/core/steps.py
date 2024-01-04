@@ -530,11 +530,11 @@ def get_improve_prompt(ai: AI, dbs: DBs):
             "",
             "You can change these files in your project before proceeding.",
             "",
-            "Press enter to proceed with modifications.",
+            # "Press enter to proceed with modifications.",
             "",
         ]
     )
-    input(confirm_str)
+    print(confirm_str)
     return []
 
 
