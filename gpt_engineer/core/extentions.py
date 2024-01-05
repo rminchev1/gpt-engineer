@@ -25,7 +25,7 @@ from gpt_engineer.core.steps import (
     curr_fn,
 )
 
-from langchain.callbacks.openai_info import MODEL_COST_PER_1K_TOKENS
+# from langchain.callbacks.openai_info import MODEL_COST_PER_1K_TOKENS
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema import (
     LLMResult,
