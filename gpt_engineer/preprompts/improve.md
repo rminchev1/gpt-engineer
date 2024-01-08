@@ -14,121 +14,6 @@ Prior to converting your planned changes into actual code, undertake a detailed 
 After confirming the planned changes are accurate and complete, proceed to format them into actionable code changes. For each modification, create an `edit block` following the format illustrated in the few-shot examples provided below strictly. Each `edit block` should accurately represent the reviewed and validated planned changes and strictly complies with the rules outlined below.
 
 
-Here is an example response with multiple **edit blocks**, note that each *edit block* is enclosed in its own triple backticks:
-
-#### Example response:
-PLANNING:
-We need to change ... because ..., therefore I will add the line `a=a+1` to the function `add_one`.
-Also, in the class `DB`, we need to update the ...
-
-OUTPUT:
-```python
-some/dir/example_1.py
-<<<<<<< HEAD
-    import math
-    def calculate_circle_area(radius):
-        return math.pi * radius * radius
-=======
-    from math import pi
-    def calculate_circle_area(radius):
-        return pi * radius * radius
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_1.py
-<<<<<<< HEAD
-    def sum_even_numbers(numbers):
-        return sum(num for num in numbers if num % 2 == 0)
-=======
-    def sum_even_numbers(numbers):
-        return sum(num for num in numbers if num % 2 == 0 and num > 0)
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_2.py
-<<<<<<< HEAD
-    def summarize_data(data):
-        total = sum(data)
-        count = len(data)
-        average = total / count
-        return total, average
-=======
-    def summarize_data(data):
-        total = sum(data)
-        count = len(data)
-        average = total / count
-        max_value = max(data)
-        return total, average, max_value
->>>>>>> updated
-```
-
-
-```python
-some/dir/example_3.py
-<<<<<<< HEAD
-        words = text.split()
-        unique_words = set(words)
-=======
-        unique_words = set(words)
-        word_count = len(words)
->>>>>>> updated
-```
-
-
-```css
-some/dir/style.css
-<<<<<<< HEAD
-    .button {
-        background-color: blue;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-    }
-=======
-    .button {
-        background-color: green;
-        color: white;
-        padding: 12px 24px;
-        text-align: center;
-        border-radius: 5px;
-    }
->>>>>>> updated
-```
-
-
-```javascript
-some/dir/script.js
-<<<<<<< HEAD
-    function toggleVisibility(elementId) {
-        var element = document.getElementById(elementId);
-        if (element.style.display === 'none') {
-            element.style.display = 'block';
-        } else {
-            element.style.display = 'none';
-        }
-    }
-=======
-    function toggleVisibility(elementId) {
-        var element = document.getElementById(elementId);
-        if (element.style.display === 'none') {
-            element.style.display = 'block';
-            console.log('Element is now visible.');
-        } else {
-            element.style.display = 'none';
-            console.log('Element is now hidden.');
-        }
-    }
->>>>>>> updated
-```
-END OUTPUT
-
-The provided `output` example includes multiple *edit blocks* corresponding to different source files. Notably, two separate *edit blocks* are associated with the same file, some/dir/example_1.py. These blocks are distinctly separated by triple backticks. This structure indicates multiple, independent edits within the same file, each enclosed in its own set of triple backticks.
-
-
 ## CRITICAL Rules about `edit blocks`:
 A program will parse the edit blocks you generate and replace the `HEAD` lines with the `updated` lines.
 So edit blocks must be precise and unambiguous!
@@ -150,6 +35,7 @@ some/dir/script1.js
     }
 >>>>>>> updated
 ```
+
 ### Code outside `edit blocks`
 Please adhere strictly to including code exclusively within the designated *edit blocks* marked by `HEAD` and `updated` segments. The example below demonstrates an *incorrect* format where code appears `outside` these specified segments, which `disrupts` the intended process. Each *edit block* should contain only the existing code (if any) in the HEAD segment, followed by the revised code in the `updated` segment. Avoid placing any part of the code outside these segments.
 
@@ -254,3 +140,133 @@ class User(Base):
     email = Column(String)
 >>>>>>> updated
 ```
+
+## Example Response
+
+Here is an example response with multiple **edit blocks**, note that each *edit block* is enclosed in its own triple backticks:
+
+#### Example response:
+PLANNING:
+We need to change ... because ..., therefore I will add the line `a=a+1` to the function `add_one`.
+Also, in the class `DB`, we need to update the ...
+
+OUTPUT:
+```python
+some/dir/example_1.py
+<<<<<<< HEAD
+    import math
+    def calculate_circle_area(radius):
+        return math.pi * radius * radius
+=======
+    import math
+    def calculate_circle_area(radius):
+        # Using the circle's circumference to calculate area
+        circumference = 2 * 3.14159 * radius
+        return circumference**2 / (4 * 3.14159)
+>>>>>>> updated
+```
+Summary: 
+The change in the code is about refactoring the calculate_circle_area function to calculate the area of a circle using its circumference instead of directly using the pi constant from the math module.
+
+
+```python
+some/dir/example_1.py
+<<<<<<< HEAD
+    def sum_even_numbers(numbers):
+        return sum(num for num in numbers if num % 2 == 0)
+=======
+    def sum_even_numbers(numbers):
+        return sum(num for num in numbers if num % 2 == 0 and num > 0)
+>>>>>>> updated
+```
+Summary: 
+The change in the code is about modifying the sum_even_numbers function to sum only the positive even numbers from the given list, whereas the original version sums all even numbers regardless of their sign.
+
+```python
+some/dir/example_2.py
+<<<<<<< HEAD
+    def summarize_data(data):
+        total = sum(data)
+        count = len(data)
+        average = total / count
+        return total, average
+=======
+    def summarize_data(data):
+        total = sum(data)
+        count = len(data)
+        average = total / count
+        max_value = max(data)
+        return total, average, max_value
+>>>>>>> updated
+```
+Summary:
+The change in the code block adds the calculation and return of the maximum value in the data to the summarize_data function.
+
+```python
+some/dir/example_3.py
+<<<<<<< HEAD
+        words = text.split()
+        unique_words = set(words)
+=======
+        unique_words = set(words)
+        word_count = len(words)
+>>>>>>> updated
+```
+
+Summary:
+The change in the code block involves adding a line to calculate and store the total count of words in the words list in the updated version, while the original version only creates a set of unique words.
+
+```css
+some/dir/style.css
+<<<<<<< HEAD
+    .button {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+    }
+=======
+    .button {
+        background-color: green;
+        color: white;
+        padding: 12px 24px;
+        text-align: center;
+        border-radius: 5px;
+    }
+>>>>>>> updated
+```
+Summary:
+The change in the CSS code updates the .button class by altering its background color to green, increasing padding, and adding a border-radius property
+
+
+```javascript
+some/dir/script.js
+<<<<<<< HEAD
+    function toggleVisibility(elementId) {
+        var element = document.getElementById(elementId);
+        if (element.style.display === 'none') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+=======
+    function toggleVisibility(elementId) {
+        var element = document.getElementById(elementId);
+        if (element.style.display === 'none') {
+            element.style.display = 'block';
+            console.log('Element is now visible.');
+        } else {
+            element.style.display = 'none';
+            console.log('Element is now hidden.');
+        }
+    }
+>>>>>>> updated
+```
+
+Summary:
+The change in the JavaScript code adds console logging to the toggleVisibility function, providing feedback on whether the element is made visible or hidden.
+
+END OUTPUT
+
+The provided `output` example includes multiple *edit blocks* corresponding to different source files. Notably, two separate *edit blocks* are associated with the same file, some/dir/example_1.py. These blocks are distinctly separated by triple backticks. This structure indicates multiple, independent edits within the same file, each enclosed in its own set of triple backticks.
